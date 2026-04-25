@@ -1,5 +1,4 @@
-export { Logo } from './Logo';
-export { Nav } from './Nav';
+export { Layout } from './Layout';
 export { Hero } from './Hero';
 export { Features } from './Features';
 export { SectionLink } from './SectionLink';

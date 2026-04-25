@@ -11,7 +11,7 @@ test.describe('Navigation', () => {
   test('navigation to MIDI player', async ({ page }) => {
     await page.goto('/');
 
-    await page.click('text=MIDI Player');
+    await page.locator('nav').getByText('MIDI Player').click();
     await expect(page).toHaveURL('/midi-player');
     await expect(page.getByText('KEYFORGE', { exact: true })).toBeVisible();
   });
@@ -19,7 +19,8 @@ test.describe('Navigation', () => {
   test('navigation to Audio player', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('link', { name: 'Audio Player', exact: true }).click();
+    await page.locator('nav').getByText('Audio Player').click();
     await expect(page).toHaveURL('/audio-player');
+    await expect(page.locator('text=FX-900')).toBeVisible();
   });
 });

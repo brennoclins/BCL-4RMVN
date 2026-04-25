@@ -11,7 +11,7 @@ export function SectionLink({ to, title, description, emoji }: SectionLinkProps)
   return (
     <Link
       to={to}
-      className="block text-center py-12 px-8 hover:text-[var(--color-hw-orange)] transition-colors no-underline group"
+      className="block text-center py-12 px-8 hover:text-[var(--color-hw-orange)] transition-colors no-underline group border-t border-gray-200"
     >
       <h2 className="text-2xl font-bold uppercase mb-1 flex items-center justify-center gap-2 text-[var(--color-text-dark)] group-hover:text-[var(--color-hw-orange)]">
         <span>{emoji}</span> {title}

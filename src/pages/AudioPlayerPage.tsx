@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { Nav } from '../components/layout';
 import {
   AudioPlayerContainer,
   HWSidebar,
@@ -193,57 +192,53 @@ export function AudioPlayerPage() {
   }, [isPlaying, currentIndex, tracks]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Nav variant="player" />
+    <div className="flex items-center justify-center p-8">
+      <AudioPlayerContainer>
+        <header className="flex justify-between items-start border-b-2 border-black/10 pb-6">
+          <div>
+            <h2 className="text-[2.4rem] font-bold tracking-tighter leading-none uppercase">
+              501BCLST<span className="text-[var(--color-hw-orange)]">.</span>
+            </h2>
+            <p className="text-[0.7rem] text-[var(--color-text-mid)] uppercase tracking-[2px] mt-1">
+              Audio Player Module / FX-900
+            </p>
+          </div>
+          <div className="w-[10px] h-[10px] bg-[var(--color-accent-screen)] rounded-full shadow-[0_0_8px_#00ff44] mt-2" />
+        </header>
 
-      <main className="flex-1 flex items-center justify-center p-8">
-        <AudioPlayerContainer>
-          <header className="flex justify-between items-start border-b-2 border-black/10 !pb-6">
-            <div>
-              <h2 className="text-[2.4rem] font-bold tracking-tighter leading-none uppercase">
-                501BCLST<span className="text-[var(--color-hw-orange)]">.</span>
-              </h2>
-              <p className="text-[0.7rem] text-[var(--color-text-mid)] uppercase tracking-[2px] mt-1">
-                Audio Player Module / FX-900
-              </p>
-            </div>
-            <div className="w-[10px] h-[10px] bg-[var(--color-accent-screen)] rounded-full shadow-[0_0_8px_#00ff44] mt-2" />
-          </header>
+        <div className="flex gap-6 mt-6">
+          <HWSidebar
+            tracks={tracks}
+            currentIndex={currentIndex}
+            onSelectTrack={selectTrack}
+            onFileUpload={handleFileUpload}
+          />
 
-          <div className="flex gap-6">
-            <HWSidebar
-              tracks={tracks}
-              currentIndex={currentIndex}
-              onSelectTrack={selectTrack}
-              onFileUpload={handleFileUpload}
+          <div className="flex-1 flex flex-col gap-6">
+            <AudioScreen
+              trackName={currentTrack?.name || 'Ready to Load'}
+              artistName={artistDisplay}
+              isPlaying={isPlaying}
             />
 
-            <div className="flex-1 flex flex-col gap-6">
-              <AudioScreen
-                trackName={currentTrack?.name || 'Ready to Load'}
-                artistName={artistDisplay}
+            <div className="flex items-center justify-between gap-8">
+              <AudioTransport
                 isPlaying={isPlaying}
+                onPlayPause={togglePlay}
+                onPrev={prevTrack}
+                onNext={nextTrack}
               />
 
-              <div className="flex items-center justify-between gap-8">
-                <AudioTransport
-                  isPlaying={isPlaying}
-                  onPlayPause={togglePlay}
-                  onPrev={prevTrack}
-                  onNext={nextTrack}
-                />
-
-                <AudioVolumeSection
-                  onVolumeChange={changeVolume}
-                  progress={progress}
-                  currentTime={currentTime}
-                  totalTime={totalTime}
-                />
-              </div>
+              <AudioVolumeSection
+                onVolumeChange={changeVolume}
+                progress={progress}
+                currentTime={currentTime}
+                totalTime={totalTime}
+              />
             </div>
           </div>
-        </AudioPlayerContainer>
-      </main>
+        </div>
+      </AudioPlayerContainer>
     </div>
   );
 }

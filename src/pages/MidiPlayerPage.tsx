@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Nav } from '../components/layout';
 import { useMidiPlayer } from '../hooks/useMidiPlayer';
 import {
   PlayerContainer,
@@ -87,66 +86,62 @@ export function MidiPlayerPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Nav variant="player" />
+    <div className="flex items-center justify-center p-8">
+      <PlayerContainer>
+        <div className="col-start-1 row-start-1">
+          <HWLogoSection />
+        </div>
 
-      <main className="flex-1 flex items-center justify-center p-8">
-        <PlayerContainer>
-          <div className="col-start-1 row-start-1">
-            <HWLogoSection />
-          </div>
+        <div className="col-start-2 row-start-1 col-span-2">
+          <HWScreen
+            modeValue={soundMode === 'samples' ? 'SAMPLES' : 'DIGITAL'}
+            status={getStatusText()}
+            statusVariant={getStatusVariant()}
+            duration={formattedDuration}
+          />
+        </div>
 
-          <div className="col-start-2 row-start-1 col-span-2">
-            <HWScreen
-              modeValue={soundMode === 'samples' ? 'SAMPLES' : 'DIGITAL'}
-              status={getStatusText()}
-              statusVariant={getStatusVariant()}
-              duration={formattedDuration}
-            />
-          </div>
+        <div className="col-start-4 row-start-1 row-span-2">
+          <HWControls
+            soundMode={soundMode}
+            onSoundModeChange={setSoundMode}
+            drumKit={drumKit}
+            onDrumKitChange={setDrumKit}
+            mainInstrument={mainInstrument}
+            onMainInstrumentChange={setMainInstrument}
+            bass={bass}
+            onBassChange={setBass}
+            guitar={guitar}
+            onGuitarChange={setGuitar}
+            brass={brass}
+            onBrassChange={setBrass}
+            showBass={detectedInstruments.channels.bass}
+            showGuitar={detectedInstruments.channels.guitar}
+            showBrass={detectedInstruments.channels.brass}
+          />
+        </div>
 
-          <div className="col-start-4 row-start-1 row-span-2">
-            <HWControls
-              soundMode={soundMode}
-              onSoundModeChange={setSoundMode}
-              drumKit={drumKit}
-              onDrumKitChange={setDrumKit}
-              mainInstrument={mainInstrument}
-              onMainInstrumentChange={setMainInstrument}
-              bass={bass}
-              onBassChange={setBass}
-              guitar={guitar}
-              onGuitarChange={setGuitar}
-              brass={brass}
-              onBrassChange={setBrass}
-              showBass={detectedInstruments.channels.bass}
-              showGuitar={detectedInstruments.channels.guitar}
-              showBrass={detectedInstruments.channels.brass}
-            />
-          </div>
+        <div className="col-start-1 row-start-2 row-span-2">
+          <HWPads instruments={instruments} onFileSelect={loadFile} />
+        </div>
 
-          <div className="col-start-1 row-start-2 row-span-2">
-            <HWPads instruments={instruments} onFileSelect={loadFile} />
-          </div>
+        <div className="col-start-4 row-start-3">
+          <HWKeysButtons />
+        </div>
 
-          <div className="col-start-4 row-start-3">
-            <HWKeysButtons />
-          </div>
+        <div className="col-start-2 col-span-3 row-start-3">
+          <HWTransport
+            isPlaying={isPlaying}
+            onPlayPause={handlePlayPause}
+            onStop={stop}
+            disabled={status === 'idle' || status === 'loading'}
+          />
+        </div>
 
-          <div className="col-start-2 col-span-3 row-start-3">
-            <HWTransport
-              isPlaying={isPlaying}
-              onPlayPause={handlePlayPause}
-              onStop={stop}
-              disabled={status === 'idle' || status === 'loading'}
-            />
-          </div>
-
-          <div className="col-span-3 row-start-4">
-            <HWVolumeSection progress={progress} currentTime={formattedTime} />
-          </div>
-        </PlayerContainer>
-      </main>
+        <div className="col-span-3 row-start-4">
+          <HWVolumeSection progress={progress} currentTime={formattedTime} />
+        </div>
+      </PlayerContainer>
     </div>
   );
 }
