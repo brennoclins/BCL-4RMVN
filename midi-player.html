@@ -21,6 +21,7 @@
             --text-mid: #505050;
             --text-light: #ffffff;
             --border-alpha: rgba(0,0,0,0.1);
+            --hw-orange: #ff6600;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
@@ -30,10 +31,49 @@
             background: radial-gradient(circle at center, #c0c0c0 0%, #a0a0a0 100%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+            color: var(--text-dark);
+        }
+
+        nav {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .logo span { color: var(--hw-orange); }
+
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-mid);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--hw-orange); }
+        .nav-links a.active { color: var(--hw-orange); border-bottom: 2px solid var(--hw-orange); }
+
+        main {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            color: var(--text-dark);
         }
 
         .player-container {
@@ -360,13 +400,19 @@
             font-family: 'JetBrains Mono', monospace;
             min-width: 60px;
         }
-
-        header {
-            display: none;
-        }
     </style>
 </head>
 <body>
+
+    <nav>
+        <a href="index.html" class="logo">BCL-4RMVN<span>.</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Hardware</a></li>
+            <li><a href="#">Software</a></li>
+            <li><a href="midi-player.html" class="active">MIDI Player</a></li>
+            <li><a href="player.html">Audio Player</a></li>
+        </ul>
+    </nav>
 
     <main>
         <div class="player-container">
