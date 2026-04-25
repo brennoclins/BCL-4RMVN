@@ -26,32 +26,30 @@ export function Nav({ variant = 'home' }: NavProps) {
   const location = useLocation();
   const links = variant === 'player' ? playerLinks : homeLinks;
 
+  const isActiveLink = (link: NavLink) => {
+    if (link.to === '/audio-player') {
+      return location.pathname === '/audio-player';
+    }
+    return location.pathname === link.to;
+  };
+
   return (
-    <nav
-      className="w-full py-6 px-8 z-50"
-      style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}
-    >
+    <nav className="p-6 w-full max-w-[1200px] mx-auto flex justify-between items-center z-50">
       <Link
         to="/"
-        className="text-[1.8rem] font-bold tracking-[-1px] text-[--color-text-dark] no-underline"
+        className="text-[1.8rem] font-bold tracking-tighter text-[var(--color-text-dark)] no-underline"
       >
-        BCL-4RMVN<span className="text-[--color-hw-orange]">.</span>
+        BCL-4RMVN<span className="text-[var(--color-hw-orange)]">.</span>
       </Link>
-      <ul className="flex gap-8 list-none">
+      <ul className="flex gap-8 uppercase font-bold text-[0.85rem] text-[var(--color-text-mid)]">
         {links.map((link) => (
           <li key={link.to}>
             <Link
               to={link.to}
-              className={`text-[0.85rem] font-bold uppercase tracking-wide transition-colors duration-300 hover:text-[--color-hw-orange] no-underline ${
-                location.pathname === link.to
-                  ? 'text-[--color-hw-orange] border-b-2 border-[--color-hw-orange]'
-                  : 'text-[--color-text-mid]'
+              className={`hover:text-[var(--color-hw-orange)] transition-colors no-underline ${
+                isActiveLink(link)
+                  ? 'text-[var(--color-hw-orange)] border-b-2 border-[var(--color-hw-orange)]'
+                  : ''
               }`}
             >
               {link.label}

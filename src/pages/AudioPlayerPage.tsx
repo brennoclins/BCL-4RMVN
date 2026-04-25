@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { Nav } from '../components/layout';
 import {
   AudioPlayerContainer,
-  HWHeader,
   HWSidebar,
   AudioScreen,
   AudioTransport,
@@ -28,7 +27,6 @@ export function AudioPlayerPage() {
   const [artistDisplay, setArtistDisplay] = useState('Standby Mode');
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const progressIntervalRef = useRef<number | null>(null);
 
   const currentTrack = currentIndex >= 0 ? tracks[currentIndex] : null;
 
@@ -65,10 +63,6 @@ export function AudioPlayerPage() {
   };
 
   const selectTrack = (index: number) => {
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-    }
-
     setCurrentIndex(index);
     setIsPlaying(false);
     setProgress(0);
@@ -77,7 +71,6 @@ export function AudioPlayerPage() {
     const track = tracks[index];
     if (track) {
       setArtistDisplay(track.ext + ' File');
-      setTotalTime('0:00');
 
       if (track.isMidi) {
         setTotalTime('0:00');
@@ -134,19 +127,16 @@ export function AudioPlayerPage() {
   };
 
   const prevTrack = () => {
-    if (tracks.length > 0 && currentIndex > 0) {
-      selectTrack(currentIndex - 1);
+    if (tracks.length > 0) {
+      const newIndex = currentIndex === 0 ? tracks.length - 1 : currentIndex - 1;
+      selectTrack(newIndex);
       play();
     }
   };
 
   const nextTrack = () => {
     if (tracks.length > 0) {
-      if (currentIndex < tracks.length - 1) {
-        selectTrack(currentIndex + 1);
-      } else {
-        selectTrack(0);
-      }
+      selectTrack((currentIndex + 1) % tracks.length);
       play();
     }
   };
@@ -206,36 +196,52 @@ export function AudioPlayerPage() {
     <div className="min-h-screen flex flex-col">
       <Nav variant="player" />
 
-      <main className="flex-1 flex items-center justify-center p-8 pb-[3rem]">
+      <main className="flex-1 flex items-center justify-center p-8">
         <AudioPlayerContainer>
-          <HWHeader title="501BCLST" model="Audio Player Module / FX-900" />
+          <header className="flex justify-between items-start border-b-2 border-black/10 pb-4 mb-6">
+            <div>
+              <h2 className="text-[1.8rem] font-bold tracking-tighter leading-none uppercase">
+                501BCLST<span className="text-[var(--color-hw-orange)]">.</span>
+              </h2>
+              <p className="text-[0.7rem] text-[var(--color-text-mid)] uppercase tracking-[2px] mt-1">
+                Audio Player Module / FX-900
+              </p>
+            </div>
+            <div className="w-[10px] h-[10px] bg-[var(--color-accent-screen)] rounded-full shadow-[0_0_8px_#00ff44] mt-2" />
+          </header>
 
-          <HWSidebar
-            tracks={tracks}
-            currentIndex={currentIndex}
-            onSelectTrack={selectTrack}
-            onFileUpload={handleFileUpload}
-          />
+          <div className="flex gap-6">
+            <HWSidebar
+              tracks={tracks}
+              currentIndex={currentIndex}
+              onSelectTrack={selectTrack}
+              onFileUpload={handleFileUpload}
+            />
 
-          <AudioScreen
-            trackName={currentTrack?.name || 'Ready to Load'}
-            artistName={artistDisplay}
-            isPlaying={isPlaying}
-          />
+            <div className="flex-1 flex flex-col gap-6">
+              <AudioScreen
+                trackName={currentTrack?.name || 'Ready to Load'}
+                artistName={artistDisplay}
+                isPlaying={isPlaying}
+              />
 
-          <AudioTransport
-            isPlaying={isPlaying}
-            onPlayPause={togglePlay}
-            onPrev={prevTrack}
-            onNext={nextTrack}
-          />
+              <div className="flex items-center justify-between gap-8">
+                <AudioTransport
+                  isPlaying={isPlaying}
+                  onPlayPause={togglePlay}
+                  onPrev={prevTrack}
+                  onNext={nextTrack}
+                />
 
-          <AudioVolumeSection
-            onVolumeChange={changeVolume}
-            progress={progress}
-            currentTime={currentTime}
-            totalTime={totalTime}
-          />
+                <AudioVolumeSection
+                  onVolumeChange={changeVolume}
+                  progress={progress}
+                  currentTime={currentTime}
+                  totalTime={totalTime}
+                />
+              </div>
+            </div>
+          </div>
         </AudioPlayerContainer>
       </main>
     </div>

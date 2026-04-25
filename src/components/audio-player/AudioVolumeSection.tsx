@@ -12,7 +12,7 @@ export function AudioVolumeSection({
   totalTime,
 }: AudioVolumeSectionProps) {
   return (
-    <div className="flex-1 flex flex-col gap-3">
+    <div className="flex-1 flex flex-col gap-2">
       <div className="flex justify-between items-center">
         <span className="text-[0.7rem] font-bold uppercase text-[var(--color-text-mid)]">
           Master Vol

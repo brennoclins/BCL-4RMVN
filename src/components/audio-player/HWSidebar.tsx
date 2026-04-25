@@ -15,25 +15,24 @@ export function HWSidebar({ tracks, currentIndex, onSelectTrack, onFileUpload }:
   };
 
   return (
-    <div
-      className="bg-[#d8d8d8] rounded-lg p-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1)] flex flex-col gap-4"
-      style={{ gridArea: 'sidebar' }}
-    >
+    <aside className="w-[280px] bg-[#d8d8d8] rounded-lg p-5 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1)] flex flex-col gap-4">
       <span className="text-[0.7rem] font-bold uppercase text-[var(--color-text-mid)]">
         Playlist Data
       </span>
 
-      <ul className="overflow-y-auto max-h-[280px] flex-1">
+      <ul className="overflow-y-auto h-[250px] flex-1">
         {tracks.length === 0 ? (
-          <li className="text-[0.8rem] px-2 py-1">Nenhum arquivo...</li>
+          <li className="text-[0.8rem] p-3 rounded bg-white/30 truncate italic text-[var(--color-text-mid)]">
+            Nenhum arquivo...
+          </li>
         ) : (
           tracks.map((track, index) => (
             <li
               key={index}
               onClick={() => onSelectTrack(index)}
-              className={`text-[0.8rem] px-2 py-1 rounded cursor-pointer mb-1 transition-all duration-200 whitespace-nowrap overflow-hidden text-overflow-ellipsis ${
+              className={`text-[0.8rem] p-3 rounded mb-1 cursor-pointer transition-all ${
                 index === currentIndex
-                  ? 'bg-[var(--color-hw-orange)] text-white shadow-[0_2px_4px_rgba(0,0,0,0.2)]'
+                  ? 'bg-[var(--color-hw-orange)] text-white shadow-md'
                   : 'bg-white/30 hover:bg-white/50'
               }`}
             >
@@ -43,19 +42,16 @@ export function HWSidebar({ tracks, currentIndex, onSelectTrack, onFileUpload }:
         )}
       </ul>
 
-      <label
-        className="block bg-[var(--color-pad-off)] text-[var(--color-text-light)] text-center p-3 rounded text-[0.7rem] uppercase cursor-pointer mt-auto transition-all duration-200 hover:bg-[#303030] hover:shadow-[0_0_10px_rgba(255,102,0,0.4)]"
-        style={{ boxShadow: '0 3px 6px rgba(0,0,0,0.4)' }}
-      >
+      <label className="block bg-[var(--color-pad-off)] text-white text-center p-3 rounded text-[0.7rem] uppercase font-bold cursor-pointer hover:bg-[#303030] shadow-[0_3px_6px_rgba(0,0,0,0.4)] transition-all active:scale-95">
         Importar MP3/WAV
         <input
           type="file"
           multiple
-          accept="audio/*,.mid,.midi"
+          accept="audio/*"
           onChange={handleFileChange}
           className="hidden"
         />
       </label>
-    </div>
+    </aside>
   );
 }
