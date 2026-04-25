@@ -1,0 +1,233 @@
+/* Home Page */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 70vh;
+    gap: 3rem;
+}
+
+.hero-content {
+    flex: 1;
+    max-width: 500px;
+}
+
+.hero-tag {
+    background: var(--text-dark);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+}
+
+.hero-content p {
+    font-size: 1rem;
+    color: var(--text-mid);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.hero-visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.hw-preview {
+    width: 400px;
+    height: 280px;
+    background: var(--hw-case-base);
+    background-image: linear-gradient(145deg, #f5f5f5, #d0d0d0);
+    border-radius: 16px;
+    box-shadow: 15px 15px 40px rgba(0,0,0,0.2), -4px -4px 12px #ffffff;
+    padding: 1.5rem;
+    display: grid;
+    grid-template-areas: 
+        "pad pad screen"
+        "pad pad screen"
+        "keys keys keys";
+    gap: 0.8rem;
+}
+
+.features {
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.section-link {
+    display: block;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.section-link:hover {
+    color: var(--hw-orange);
+}
+
+.section-link h2 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.section-link p {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+}
+
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    .hw-preview {
+        width: 100%;
+        max-width: 350px;
+        height: 250px;
+    }
+    .features {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* MIDI Player Page */
+.player-grid {
+    display: grid;
+    grid-template-areas: 
+        "logo screen screen controls"
+        "pads screen screen keys"
+        "pads transport transport transport"
+        "volume volume volume volume";
+    grid-template-columns: 1fr 2.5fr 1fr;
+    grid-template-rows: auto 2fr auto auto;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 900px;
+}
+
+.player-grid .hw-logo-section {
+    grid-area: logo;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.hw-logo-main {
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    color: var(--text-dark);
+}
+
+.hw-logo-sub {
+    font-size: 0.65rem;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    border-left: 2px solid var(--accent-screen);
+    padding-left: 0.4rem;
+    line-height: 1.4;
+}
+
+.player-grid .hw-screen {
+    grid-area: screen;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.player-grid .hw-controls {
+    grid-area: controls;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: space-around;
+}
+
+.player-grid .hw-pads {
+    grid-area: pads;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.5rem;
+    padding-right: 1.5rem;
+    border-right: 1px solid var(--border-alpha);
+}
+
+.player-grid .hw-keys-buttons {
+    grid-area: keys;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.player-grid .hw-transport {
+    grid-area: transport;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-alpha);
+}
+
+.player-grid .hw-volume-section {
+    grid-area: volume;
+    grid-column: span 3;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-alpha);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.setting-label {
+    font-size: 0.7rem;
+    color: var(--text-mid);
+    text-transform: uppercase;
+}
+
+.setting-select {
+    background-color: #2a2a2a;
+    background-image: linear-gradient(180deg, #404040 0%, #1a1a1a 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-light);
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    min-width: 140px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
