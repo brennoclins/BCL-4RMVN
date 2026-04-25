@@ -46,11 +46,10 @@ export function Nav({ variant = 'home' }: NavProps) {
           <li key={link.to}>
             <Link
               to={link.to}
-              className={`hover:text-[var(--color-hw-orange)] transition-colors no-underline ${
-                isActiveLink(link)
-                  ? 'text-[var(--color-hw-orange)] border-b-2 border-[var(--color-hw-orange)]'
-                  : ''
-              }`}
+              className={`hover:text-[var(--color-hw-orange)] transition-colors no-underline ${isActiveLink(link)
+                ? 'text-[var(--color-hw-orange)] border-b-2 border-[var(--color-hw-orange)]'
+                : ''
+                }`}
             >
               {link.label}
             </Link>

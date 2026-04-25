@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 
 export function Hero() {
   return (
-    <section className="flex flex-col md:flex-row items-center justify-center py-12 px-8 max-w-[1200px] mx-auto min-h-[70vh] gap-12">
+    <section className="flex flex-col md:flex-row items-center justify-center py-12 px-8 max-w-[1000px] mx-auto min-h-[70vh] gap-12">
       <div className="flex-1 max-w-[500px] text-center md:text-left">
-        <div className="bg-[var(--color-text-dark)] text-white px-3 py-1.5 inline-block text-[0.65rem] font-bold uppercase mb-4 rounded">
+        <div className="bg-[var(--color-text-dark)] text-white px-4 py-1 inline-block text-[0.75rem] font-bold uppercase mb-4 rounded">
           Professional MIDI Solutions
         </div>
         <h1 className="text-[3.5rem] leading-[1.05] mb-4 uppercase tracking-[-2px] font-bold">
@@ -15,7 +15,7 @@ export function Hero() {
         </p>
         <Link
           to="/midi-player"
-          className="inline-block text-white px-8 py-3 rounded-md font-bold uppercase text-[0.9rem] shadow-[3px_3px_8px_rgba(0,0,0,0.1),-2px_-2px_5px_#fff] bg-gradient-to-br from-[#ff7733] to-[#ff5500] hover:-translate-y-0.5 transition-all active:scale-95"
+          className="inline-block  px-8 py-3 rounded-md font-bold uppercase text-[1rem] shadow-[3px_3px_8px_rgba(0,0,0,0.1),-2px_-2px_5px_#fff] bg-gradient-to-br from-[#ff7733] to-[#ff5500] hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95"
         >
           Abrir KEYFORGE MIDI Player
         </Link>
@@ -34,7 +34,7 @@ function HWPreview() {
       className="w-[400px] h-[280px] bg-gradient-to-br from-[var(--color-hw-case-light)] to-[#d0d0d0] rounded-2xl shadow-[15px_15px_40px_rgba(0,0,0,0.2),-4px_-4px_12px_#ffffff] p-6 grid gap-3"
       style={{
         gridTemplateAreas: '"pad pad screen" "pad pad screen" "keys keys keys"',
-        gridTemplateColumns: '1fr 1fr 1fr',
+        gridTemplateColumns: '1fr 1fr 2fr',
       }}
     >
       <HWPadMock />
@@ -80,7 +80,7 @@ function HWScreenMock() {
 function HWKeysMock() {
   return (
     <div
-      className="rounded-md bg-white shadow-[0_4px_0_#ccc] flex items-end justify-center gap-[3px] p-1.5 h-[50px] relative"
+      className="rounded-md bg-white shadow-[0_4px_0_#ccc] flex items-end justify-center gap-[3px] p-1.5 h-full relative"
       style={{ gridArea: 'keys' }}
     >
       {[1, 2, 3, 4, 5, 6, 7].map((i) => (
@@ -89,11 +89,11 @@ function HWKeysMock() {
           className="flex-1 h-full bg-gradient-to-b from-[#f5f5f5] to-[var(--color-hw-case-base)] rounded-b-sm"
         />
       ))}
-      <div className="absolute w-3 h-[60%] bg-gradient-to-b from-[#404040] to-black left-[13%] rounded-b-sm z-10" />
-      <div className="absolute w-3 h-[60%] bg-gradient-to-b from-[#404040] to-black left-[27%] rounded-b-sm z-10" />
-      <div className="absolute w-3 h-[60%] bg-gradient-to-b from-[#404040] to-black left-[56%] rounded-b-sm z-10" />
-      <div className="absolute w-3 h-[60%] bg-gradient-to-b from-[#404040] to-black left-[70%] rounded-b-sm z-10" />
-      <div className="absolute w-3 h-[60%] bg-gradient-to-b from-[#404040] to-black left-[84%] rounded-b-sm z-10" />
+      <div className="absolute w-3 h-[60%] top-0 bg-gradient-to-b from-[#404040] to-black left-[13%] rounded-b-sm z-10" />
+      <div className="absolute w-3 h-[60%] top-0 bg-gradient-to-b from-[#404040] to-black left-[27%] rounded-b-sm z-10" />
+      <div className="absolute w-3 h-[60%] top-0 bg-gradient-to-b from-[#404040] to-black left-[56%] rounded-b-sm z-10" />
+      <div className="absolute w-3 h-[60%] top-0 bg-gradient-to-b from-[#404040] to-black left-[70%] rounded-b-sm z-10" />
+      <div className="absolute w-3 h-[60%] top-0 bg-gradient-to-b from-[#404040] to-black left-[84%] rounded-b-sm z-10" />
     </div>
   );
 }
