@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import {
   AudioPlayerContainer,
   HWSidebar,
@@ -24,12 +24,15 @@ export function AudioPlayerPage() {
   const [totalTime, setTotalTime] = useState('0:00');
   const [volume, setVolume] = useState(0);
   const [artistDisplay, setArtistDisplay] = useState('Standby Mode');
+  const [isLooping, setIsLooping] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const progressIntervalRef = useRef<number | null>(null);
 
   const currentTrack = currentIndex >= 0 ? tracks[currentIndex] : null;
 
   const formatTime = (seconds: number): string => {
+    if (isNaN(seconds) || !isFinite(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
@@ -55,59 +58,68 @@ export function AudioPlayerPage() {
       }
     });
 
-    setTracks((prev) => [...prev, ...newTracks]);
+    const updatedTracks = [...tracks, ...newTracks];
+    setTracks(updatedTracks);
+    
     if (currentIndex === -1 && newTracks.length > 0) {
-      selectTrack(tracks.length);
+      selectTrack(0, updatedTracks);
     }
   };
 
-  const selectTrack = (index: number) => {
+  const selectTrack = useCallback((index: number, trackList = tracks) => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+
     setCurrentIndex(index);
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime('0:00');
 
-    const track = tracks[index];
+    const track = trackList[index];
     if (track) {
       setArtistDisplay(track.ext + ' File');
 
-      if (track.isMidi) {
-        setTotalTime('0:00');
-      } else {
+      if (!track.isMidi) {
         if (audioRef.current) {
           audioRef.current.src = track.url;
           audioRef.current.load();
-          audioRef.current.addEventListener(
-            'loadedmetadata',
-            () => {
-              setTotalTime(formatTime(audioRef.current?.duration || 0));
-            },
-            { once: true }
-          );
         }
       }
+      setTotalTime('0:00');
     }
-  };
+  }, [tracks]);
 
-  const play = () => {
+  const playAudio = useCallback(() => {
+    if (!audioRef.current || !currentTrack || currentTrack.isMidi) {
+      if (currentTrack?.isMidi) {
+        setIsPlaying(true);
+        setArtistDisplay('MIDI Mode');
+      }
+      return;
+    }
+
+    audioRef.current.play().then(() => {
+      setIsPlaying(true);
+      setArtistDisplay(currentTrack.ext + ' Playing');
+    }).catch(err => {
+      console.error('Playback error:', err);
+    });
+  }, [currentTrack]);
+
+  const play = useCallback(() => {
     if (currentIndex === -1 || !currentTrack) return;
 
-    if (currentTrack.isMidi) {
-      setIsPlaying(true);
-      setArtistDisplay('MIDI Mode');
-    } else {
-      if (!audioRef.current) {
-        audioRef.current = new Audio();
-        audioRef.current.src = currentTrack.url;
-      }
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-        setArtistDisplay(currentTrack.ext + ' Playing');
-      });
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.src = currentTrack.url;
     }
-  };
 
-  const pause = () => {
+    playAudio();
+  }, [currentIndex, currentTrack, playAudio]);
+
+  const pause = useCallback(() => {
     if (currentTrack?.isMidi) {
       setIsPlaying(false);
     } else {
@@ -115,32 +127,46 @@ export function AudioPlayerPage() {
       setIsPlaying(false);
     }
     setArtistDisplay(currentTrack?.ext + ' File' || 'Standby Mode');
-  };
+  }, [currentTrack]);
 
-  const togglePlay = () => {
+  const togglePlay = useCallback(() => {
     if (isPlaying) {
       pause();
     } else {
       play();
     }
-  };
+  }, [isPlaying, play, pause]);
 
-  const prevTrack = () => {
+  const prevTrack = useCallback(() => {
     if (tracks.length > 0) {
-      const newIndex = currentIndex === 0 ? tracks.length - 1 : currentIndex - 1;
+      const newIndex = currentIndex > 0 ? currentIndex - 1 : tracks.length - 1;
       selectTrack(newIndex);
       play();
     }
-  };
+  }, [tracks.length, currentIndex, selectTrack, play]);
 
-  const nextTrack = () => {
+  const nextTrack = useCallback(() => {
     if (tracks.length > 0) {
-      selectTrack((currentIndex + 1) % tracks.length);
-      play();
+      const nextIndex = currentIndex + 1;
+      
+      if (nextIndex >= tracks.length) {
+        if (isLooping) {
+          selectTrack(0);
+          play();
+        } else {
+          setIsPlaying(false);
+          setProgress(0);
+          setCurrentTime('0:00');
+          return;
+        }
+      } else {
+        selectTrack(nextIndex);
+        play();
+      }
     }
-  };
+  }, [tracks.length, currentIndex, isLooping, selectTrack, play]);
 
-  const changeVolume = (delta: number) => {
+  const changeVolume = useCallback((delta: number) => {
     const newVolume = Math.max(-60, Math.min(6, volume + delta));
     setVolume(newVolume);
 
@@ -154,24 +180,43 @@ export function AudioPlayerPage() {
     setTimeout(() => {
       setArtistDisplay(originalText);
     }, 1200);
-  };
+  }, [volume, artistDisplay]);
 
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.addEventListener('timeupdate', () => {
-        if (audioRef.current && audioRef.current.duration) {
-          const percent = (audioRef.current.currentTime / audioRef.current.duration) * 100;
-          setProgress(percent);
-          setCurrentTime(formatTime(audioRef.current.currentTime));
-        }
-      });
-
-      audioRef.current.addEventListener('ended', () => {
-        nextTrack();
-        play();
-      });
+  const handleProgressClick = useCallback((percent: number) => {
+    if (audioRef.current && audioRef.current.duration) {
+      audioRef.current.currentTime = (percent / 100) * audioRef.current.duration;
     }
   }, []);
+
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+
+    const audio = audioRef.current;
+
+    audio.addEventListener('loadedmetadata', () => {
+      setTotalTime(formatTime(audio.duration));
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        const percent = (audio.currentTime / audio.duration) * 100;
+        setProgress(percent);
+        setCurrentTime(formatTime(audio.currentTime));
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      nextTrack();
+    });
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', () => {});
+      audio.removeEventListener('timeupdate', () => {});
+      audio.removeEventListener('ended', () => {});
+    };
+  }, [nextTrack]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -189,7 +234,7 @@ export function AudioPlayerPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, currentIndex, tracks]);
+  }, [togglePlay, nextTrack, prevTrack]);
 
   return (
     <div className="flex items-center justify-center p-8">
@@ -210,7 +255,10 @@ export function AudioPlayerPage() {
           <HWSidebar
             tracks={tracks}
             currentIndex={currentIndex}
-            onSelectTrack={selectTrack}
+            onSelectTrack={(idx) => {
+              selectTrack(idx);
+              play();
+            }}
             onFileUpload={handleFileUpload}
           />
 
@@ -224,9 +272,11 @@ export function AudioPlayerPage() {
             <div className="flex items-center justify-between gap-8">
               <AudioTransport
                 isPlaying={isPlaying}
+                isLooping={isLooping}
                 onPlayPause={togglePlay}
                 onPrev={prevTrack}
                 onNext={nextTrack}
+                onToggleLoop={() => setIsLooping(!isLooping)}
               />
 
               <AudioVolumeSection
@@ -234,6 +284,7 @@ export function AudioPlayerPage() {
                 progress={progress}
                 currentTime={currentTime}
                 totalTime={totalTime}
+                onProgressClick={handleProgressClick}
               />
             </div>
           </div>
