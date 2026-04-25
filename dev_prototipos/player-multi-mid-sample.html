@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Multi-Sample Player</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; width: 450px; border: 1px solid #333; }
+        .status { margin: 15px 0; color: #00d1ff; font-weight: bold; font-size: 14px; }
+        .controls button { padding: 12px 25px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .play { background: #2ecc71; color: white; }
+        .stop { background: #e74c3c; color: white; }
+        .info { font-size: 11px; color: #777; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Custom Sample Player</h2>
+    <input type="file" id="fileInput" accept=".mid, .midi, .mp3">
+    <div id="status" class="status">Carregando bibliotecas...</div>
+    
+    <div class="controls">
+        <button id="playBtn" class="play" disabled>TOCAR</button>
+        <button id="stopBtn" class="stop" disabled>PARAR</button>
+    </div>
+    <p class="info">Os samples de bateria e piano são baixados via CDN na primeira execução.</p>
+</div>
+
+<script>
+    const status = document.getElementById('status');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    let midiData = null;
+    let players = {}; // Objeto para guardar nossos samplers
+
+    // --- CONFIGURAÇÃO DOS SAMPLES ---
+    // Aqui você define os arquivos para cada "grupo" de instrumentos
+    
+    // 1. Definição do Kit de Bateria (Samples Reais)
+    const drumKit = new Tone.Sampler({
+        urls: {
+            "C1": "kick.mp3",
+            "D1": "snare.mp3",
+            "F#1": "hihat.mp3"
+        },
+        baseUrl: "https://tonejs.github.io/audio/drum-samples/CR78/", // Você pode trocar por sua pasta local
+        onload: () => console.log("Bateria carregada!")
+    }).toDestination();
+
+    // 2. Definição do Piano (Sample Real)
+    const piano = new Tone.Sampler({
+        urls: { "A0": "A0.mp3", "C1": "C1.mp3", "A2": "A2.mp3", "C4": "C4.mp3" },
+        baseUrl: "https://tonejs.github.io/audio/salamander/",
+        onload: () => {
+            status.innerText = "Samples Prontos!";
+            playBtn.disabled = false;
+        }
+    }).toDestination();
+
+    fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        stopAll();
+        if (file.name.endsWith('.mp3')) {
+            // Lógica simples de MP3 omitida para focar no MIDI, mas funciona igual antes
+            return;
+        }
+
+        status.innerText = "Lendo MIDI...";
+        const arrayBuffer = await file.arrayBuffer();
+        midiData = new Midi(arrayBuffer);
+        status.innerText = "Arquivo pronto: " + file.name;
+    };
+
+    playBtn.onclick = async () => {
+        await Tone.start();
+        status.innerText = "Iniciando Orquestra...";
+        
+        midiData.tracks.forEach(track => {
+            // LOGICA DE SELEÇÃO DE INSTRUMENTO
+            let instrumentToUse;
+
+            if (track.channel === 9) { 
+                // CANAL 10 (index 9) é sempre BATERIA no padrão MIDI
+                instrumentToUse = drumKit;
+            } else {
+                // Para todos os outros, usamos o Piano (ou você pode criar outros samplers)
+                instrumentToUse = piano;
+            }
+
+            track.notes.forEach(note => {
+                Tone.Transport.schedule((time) => {
+                    instrumentToUse.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+                }, note.time);
+            });
+        });
+
+        Tone.Transport.start();
+    };
+
+    stopBtn.onclick = () => stopAll();
+
+    function stopAll() {
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+        status.innerText = "Parado.";
+    }
+</script>
+</body>
+</html>

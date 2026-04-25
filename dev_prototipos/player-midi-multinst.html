@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Orchestra Player: MP3 & Multi-Instrument MIDI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; width: 400px; border: 1px solid #333; }
+        .instrument-list { text-align: left; font-size: 12px; background: #2a2a2a; padding: 10px; border-radius: 8px; margin: 15px 0; max-height: 150px; overflow-y: auto; }
+        .status { margin-bottom: 15px; color: #00d1ff; font-weight: bold; }
+        .controls button { padding: 12px 25px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .play { background: #2ecc71; color: white; }
+        .stop { background: #e74c3c; color: white; }
+        button:disabled { background: #444; opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Multi-Instrument Player</h2>
+    <input type="file" id="fileInput" accept=".mp3, .mid, .midi">
+    
+    <div id="status" class="status">Aguardando arquivo...</div>
+    
+    <div id="instrument-container" style="display:none;">
+        <strong>Instrumentos detectados:</strong>
+        <div id="instrument-list" class="instrument-list"></div>
+    </div>
+
+    <div class="controls">
+        <button id="playBtn" class="play" disabled>TOCAR</button>
+        <button id="stopBtn" class="stop" disabled>PARAR</button>
+    </div>
+</div>
+
+<script>
+    const status = document.getElementById('status');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const fileInput = document.getElementById('fileInput');
+    const instrumentList = document.getElementById('instrument-list');
+    const instrumentContainer = document.getElementById('instrument-container');
+
+    let audioPlayer = new Audio();
+    let midiData = null;
+    let isMidi = false;
+    let synths = []; // Array para guardar os sintetizadores de cada trilha
+
+    fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        stopAll();
+        const ext = file.name.split('.').pop().toLowerCase();
+        
+        if (ext === 'mp3') {
+            isMidi = false;
+            instrumentContainer.style.display = 'none';
+            audioPlayer.src = URL.createObjectURL(file);
+            status.innerText = "MP3 carregado.";
+            playBtn.disabled = false;
+        } 
+        else if (ext === 'mid' || ext === 'midi') {
+            isMidi = true;
+            status.innerText = "Analisando trilhas MIDI...";
+            const arrayBuffer = await file.arrayBuffer();
+            midiData = new Midi(arrayBuffer);
+            
+            // Mostrar instrumentos detectados
+            instrumentList.innerHTML = "";
+            midiData.tracks.forEach((track, i) => {
+                if (track.notes.length > 0) {
+                    const item = document.createElement('div');
+                    item.innerText = `Trilha ${i+1}: ${track.instrument.name || 'Sintetizador Padrão'}`;
+                    instrumentList.appendChild(item);
+                }
+            });
+            instrumentContainer.style.display = 'block';
+            status.innerText = "MIDI pronto!";
+            playBtn.disabled = false;
+        }
+        stopBtn.disabled = false;
+    };
+
+    playBtn.onclick = async () => {
+        await Tone.start();
+
+        if (isMidi) {
+            status.innerText = "Tocando orquestra...";
+            
+            // Criar um sintetizador para cada trilha
+            midiData.tracks.forEach(track => {
+                if (track.notes.length > 0) {
+                    // Criamos um tipo de som baseado no instrumento (simplificado)
+                    let synth;
+                    
+                    // Canal 10 é sempre percussão no MIDI padrão
+                    if (track.channel === 9) {
+                        synth = new Tone.MembraneSynth().toDestination();
+                    } else {
+                        // Variamos o tipo de onda para dar timbres diferentes
+                        synth = new Tone.PolySynth(Tone.Synth, {
+                            oscillator: { type: track.instrument.percussion ? "square" : "triangle" }
+                        }).toDestination();
+                    }
+
+                    // Agendar notas
+                    track.notes.forEach(note => {
+                        Tone.Transport.schedule((time) => {
+                            synth.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+                        }, note.time);
+                    });
+                    synths.push(synth);
+                }
+            });
+
+            Tone.Transport.start();
+        } else {
+            audioPlayer.play();
+        }
+    };
+
+    stopBtn.onclick = () => stopAll();
+
+    function stopAll() {
+        status.innerText = "Parado.";
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+        
+        // Limpar sintetizadores antigos
+        synths.forEach(s => s.dispose());
+        synths = [];
+    }
+</script>
+
+</body>
+</html>

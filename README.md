@@ -1,26 +1,73 @@
-# BCL-4RMVN - Professional MIDI/Audio Solutions
+# React + TypeScript + Vite
 
-Player MIDI e Audio Profissional com interface estilo hardware.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Principais Funcionalidades
+Currently, two official plugins are available:
 
-- **KEYFORGE MIDI Player**
-  - Reprodução de arquivos MIDI com samples reais (piano, drums, bass, guitar, brass)
-  - 10 Drum Kits: Acoustic, CR78, LinnDrum, R8, Techno, Stark, Kit3, Kit8, KPR77, Bongos
-  - Modo Digital (synths) ou Samples
-  - Detecção automática de instrumentos no arquivo MIDI
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-- **Audio Player**
-  - Suporte a MP3, WAV, OGG, FLAC, AAC, MIDI
-  - Playlist com controle de volume
-  - Visualizador EQ animado
+## React Compiler
 
-## Tecnologias
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-- [Tone.js](https://tonejs.github.io/) - Síntese de áudio
-- [@tonejs/midi](https://github.com/Tonejs/midi) - Parsing de arquivos MIDI
+## Expanding the ESLint configuration
 
-## Link do projeto
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-[BCL-4RMVN](bcl-4rmvn.vercel.app)
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
