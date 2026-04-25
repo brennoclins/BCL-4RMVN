@@ -21,7 +21,17 @@ export interface InstrumentConfig {
   baseUrl: string;
 }
 
-export type DrumKitType = 'acoustic' | 'cr78' | 'linn' | 'r8' | 'techno' | 'stark' | 'kit3' | 'kit8' | 'kpr77' | 'bongos';
+export type DrumKitType =
+  | 'acoustic'
+  | 'cr78'
+  | 'linn'
+  | 'r8'
+  | 'techno'
+  | 'stark'
+  | 'kit3'
+  | 'kit8'
+  | 'kpr77'
+  | 'bongos';
 
 export type MainInstrumentType = 'casio' | 'piano';
 
