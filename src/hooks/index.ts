@@ -1,2 +1,2 @@
-export { useTone } from './useTone'
-export { useMidiPlayer } from './useMidiPlayer'
+export { useTone } from './useTone';
+export { useMidiPlayer } from './useMidiPlayer';

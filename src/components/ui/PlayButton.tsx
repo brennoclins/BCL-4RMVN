@@ -1,7 +1,7 @@
 interface PlayButtonProps {
-  playing: boolean
-  onClick: () => void
-  disabled?: boolean
+  playing: boolean;
+  onClick: () => void;
+  disabled?: boolean;
 }
 
 export function PlayButton({ playing, onClick, disabled }: PlayButtonProps) {
@@ -42,5 +42,5 @@ export function PlayButton({ playing, onClick, disabled }: PlayButtonProps) {
         </>
       )}
     </button>
-  )
+  );
 }

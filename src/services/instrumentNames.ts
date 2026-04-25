@@ -125,6 +125,6 @@ const instrumentNames = [
   'Helicopter',
   'Applause',
   'Gunshot',
-]
+];
 
-export { instrumentNames }
+export { instrumentNames };

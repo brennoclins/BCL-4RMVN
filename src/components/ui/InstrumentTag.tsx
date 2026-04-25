@@ -1,15 +1,11 @@
 interface InstrumentTagProps {
-  name: string
-  type?: 'default' | 'drums' | 'bass'
-  active?: boolean
+  name: string;
+  type?: 'default' | 'drums' | 'bass';
+  active?: boolean;
 }
 
-export function InstrumentTag({
-  name,
-  type = 'default',
-  active = false,
-}: InstrumentTagProps) {
-  const displayName = name.length > 8 ? name.substring(0, 8) + '..' : name
+export function InstrumentTag({ name, type = 'default', active = false }: InstrumentTagProps) {
+  const displayName = name.length > 8 ? name.substring(0, 8) + '..' : name;
 
   const typeClasses = {
     default: active
@@ -21,7 +17,7 @@ export function InstrumentTag({
     bass: active
       ? 'bg-[#00aaff] shadow-[0_0_15px_rgba(0,170,255,0.8)] border-[#66ccff] text-white'
       : 'bg-[#1a1a1a] shadow-[0_2px_4px_rgba(0,0,0,0.5)] border border-[#303030]',
-  }
+  };
 
   return (
     <div
@@ -29,5 +25,5 @@ export function InstrumentTag({
     >
       {displayName}
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react';
 
 interface UploadButtonProps {
-  onFileSelect: (file: File) => void
-  accept?: string
-  label?: string
-  className?: string
+  onFileSelect: (file: File) => void;
+  accept?: string;
+  label?: string;
+  className?: string;
 }
 
 export function UploadButton({
@@ -13,33 +13,33 @@ export function UploadButton({
   label = 'Load MIDI',
   className = '',
 }: UploadButtonProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleClick = () => {
-    inputRef.current?.click()
-  }
+    inputRef.current?.click();
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) onFileSelect(file)
-  }
+    const file = e.target.files?.[0];
+    if (file) onFileSelect(file);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+    setIsDragging(false);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-    const file = e.dataTransfer.files?.[0]
-    if (file) onFileSelect(file)
-  }
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) onFileSelect(file);
+  };
 
   return (
     <>
@@ -74,5 +74,5 @@ export function UploadButton({
         {label}
       </button>
     </>
-  )
+  );
 }

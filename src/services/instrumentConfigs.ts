@@ -1,21 +1,15 @@
-import type {
-  DrumKitType,
-  MainInstrumentType,
-  BassType,
-  GuitarType,
-  BrassType,
-} from '@/types'
+import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '@/types';
 
 export interface DrumKitConfig {
-  name: string
-  urls: Record<string, string>
-  baseUrl: string
+  name: string;
+  urls: Record<string, string>;
+  baseUrl: string;
 }
 
 export interface InstrumentConfig {
-  name: string
-  urls: Record<string, string>
-  baseUrl: string
+  name: string;
+  urls: Record<string, string>;
+  baseUrl: string;
 }
 
 export const drumKits: Record<DrumKitType, DrumKitConfig> = {
@@ -127,7 +121,7 @@ export const drumKits: Record<DrumKitType, DrumKitConfig> = {
     },
     baseUrl: 'https://tonejs.github.io/audio/drum-samples/Bongos/',
   },
-}
+};
 
 export const mainInstruments: Record<MainInstrumentType, InstrumentConfig> = {
   casio: {
@@ -154,7 +148,7 @@ export const mainInstruments: Record<MainInstrumentType, InstrumentConfig> = {
     },
     baseUrl: 'https://tonejs.github.io/audio/salamander/',
   },
-}
+};
 
 export const bassInstruments: Record<BassType, InstrumentConfig> = {
   finger: {
@@ -184,7 +178,7 @@ export const bassInstruments: Record<BassType, InstrumentConfig> = {
     },
     baseUrl: 'https://tonejs.github.io/audio/salamander/',
   },
-}
+};
 
 export const guitarInstruments: Record<GuitarType, InstrumentConfig> = {
   nylon: {
@@ -203,7 +197,7 @@ export const guitarInstruments: Record<GuitarType, InstrumentConfig> = {
     },
     baseUrl: 'https://tonejs.github.io/audio/casio/',
   },
-}
+};
 
 export const brassInstruments: Record<BrassType, InstrumentConfig> = {
   trumpet: {
@@ -227,4 +221,4 @@ export const brassInstruments: Record<BrassType, InstrumentConfig> = {
     },
     baseUrl: 'https://tonejs.github.io/audio/casio/',
   },
-}
+};

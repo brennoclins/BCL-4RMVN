@@ -1,7 +1,7 @@
-export { Button } from './Button'
-export { Select } from './Select'
-export { ProgressBar } from './ProgressBar'
-export { IconButton } from './IconButton'
-export { UploadButton } from './UploadButton'
-export { InstrumentTag } from './InstrumentTag'
-export { PlayButton } from './PlayButton'
+export { Button } from './Button';
+export { Select } from './Select';
+export { ProgressBar } from './ProgressBar';
+export { IconButton } from './IconButton';
+export { UploadButton } from './UploadButton';
+export { InstrumentTag } from './InstrumentTag';
+export { PlayButton } from './PlayButton';

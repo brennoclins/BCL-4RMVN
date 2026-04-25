@@ -1,22 +1,16 @@
-import type { SelectHTMLAttributes } from 'react'
+import type { SelectHTMLAttributes } from 'react';
 
 interface SelectOption {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
 interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
-  options: SelectOption[]
-  onChange?: (value: string) => void
+  options: SelectOption[];
+  onChange?: (value: string) => void;
 }
 
-export function Select({
-  options,
-  value,
-  onChange,
-  className = '',
-  ...props
-}: SelectProps) {
+export function Select({ options, value, onChange, className = '', ...props }: SelectProps) {
   return (
     <select
       value={value}
@@ -30,5 +24,5 @@ export function Select({
         </option>
       ))}
     </select>
-  )
+  );
 }

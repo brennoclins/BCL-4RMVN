@@ -1,28 +1,28 @@
-import { useState, useCallback } from 'react'
-import { toneService } from '@/services/toneService'
+import { useState, useCallback } from 'react';
+import { toneService } from '@/services/toneService';
 
 export function useTone() {
-  const [isReady, setIsReady] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const start = useCallback(async () => {
-    if (isReady) return
-    setIsLoading(true)
+    if (isReady) return;
+    setIsLoading(true);
     try {
-      await toneService.start()
-      setIsReady(true)
+      await toneService.start();
+      setIsReady(true);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [isReady])
+  }, [isReady]);
 
   const stop = useCallback(() => {
-    toneService.stopAll()
-  }, [])
+    toneService.stopAll();
+  }, []);
 
   const setTempo = useCallback((bpm: number) => {
-    toneService.setTempo(bpm)
-  }, [])
+    toneService.setTempo(bpm);
+  }, []);
 
   return {
     isReady,
@@ -30,5 +30,5 @@ export function useTone() {
     start,
     stop,
     setTempo,
-  }
+  };
 }
