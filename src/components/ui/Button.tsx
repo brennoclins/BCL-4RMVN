@@ -4,18 +4,53 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'hardware' | 'hardware-orange' | 'default';
 }
 
-const variantClasses = {
-  hardware:
-    'px-6 py-3 text-sm font-bold uppercase bg-gradient-to-b from-white to-gray-200 border border-black/10 rounded-md shadow-[3px_3px_8px_rgba(0,0,0,0.1),-2px_-2px_5px_#fff] hover:translate-y-[-2px] hover:shadow-[5px_5px_12px_rgba(0,0,0,0.15)] transition-all disabled:opacity-40 disabled:cursor-not-allowed',
-  'hardware-orange':
-    'px-6 py-3 text-sm font-bold uppercase bg-gradient-to-b from-[#ff7733] to-[#ff5500] border border-black/10 rounded-md shadow-[3px_3px_8px_rgba(0,0,0,0.1),-2px_-2px_5px_#fff] hover:translate-y-[-2px] hover:shadow-[5px_5px_12px_rgba(0,0,0,0.15)] text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed',
-  default:
-    'px-4 py-2 text-sm font-bold uppercase bg-gray-200 border border-black/10 rounded-md hover:bg-gray-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed',
-};
-
 export function Button({ variant = 'default', children, className = '', ...props }: ButtonProps) {
+  let style: React.CSSProperties = {};
+
+  switch (variant) {
+    case 'hardware':
+      style = {
+        padding: '0.8rem 2rem',
+        fontSize: '0.9rem',
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        borderRadius: '6px',
+        background: 'linear-gradient(145deg, #ffffff, #e6e6e6)',
+        border: '1px solid rgba(0,0,0,0.1)',
+        color: 'var(--color-text-dark)',
+        boxShadow: '3px 3px 8px rgba(0,0,0,0.1), -2px -2px 5px #fff',
+      };
+      break;
+    case 'hardware-orange':
+      style = {
+        padding: '0.8rem 2rem',
+        fontSize: '0.9rem',
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        borderRadius: '6px',
+        background: 'linear-gradient(145deg, #ff7733, #ff5500)',
+        color: 'white',
+        boxShadow: '3px 3px 8px rgba(0,0,0,0.1), -2px -2px 5px #fff',
+      };
+      break;
+    default:
+      style = {
+        padding: '0.6rem 1.2rem',
+        fontSize: '0.75rem',
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        borderRadius: '4px',
+        background: '#e0e0e0',
+        border: '1px solid rgba(0,0,0,0.1)',
+      };
+  }
+
   return (
-    <button className={`${variantClasses[variant]} ${className}`} {...props}>
+    <button
+      className={`transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-0.5 ${className}`}
+      style={style}
+      {...props}
+    >
       {children}
     </button>
   );

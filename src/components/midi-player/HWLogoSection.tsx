@@ -9,8 +9,21 @@ export function HWLogoSection({
 }: HWLogoSectionProps) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-4xl font-bold uppercase tracking-tight">{main}</div>
-      <div className="text-xs text-[--color-text-mid] uppercase border-l-2 border-[--color-accent-screen] pl-2 leading-tight whitespace-pre-line">
+      <div
+        className="font-bold uppercase"
+        style={{ fontSize: '2rem', letterSpacing: '-1px', color: 'var(--color-text-dark)' }}
+      >
+        {main}
+      </div>
+      <div
+        className="text-xs uppercase leading-tight"
+        style={{
+          color: 'var(--color-text-mid)',
+          borderLeft: '2px solid var(--color-accent-screen)',
+          paddingLeft: '0.4rem',
+          whiteSpace: 'pre-line',
+        }}
+      >
         {sub}
       </div>
     </div>

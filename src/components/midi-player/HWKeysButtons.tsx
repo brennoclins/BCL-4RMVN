@@ -11,16 +11,24 @@ export function HWKeysButtons({ activeMode = 'keys', onModeChange }: HWKeysButto
   ];
 
   return (
-    <div className="flex flex-col gap-2 items-end">
+    <div className="flex flex-col gap-2" style={{ alignItems: 'flex-end' }}>
       {modes.map((mode) => (
         <button
           key={mode.key}
           onClick={() => onModeChange?.(mode.key)}
-          className={`px-4 py-2 text-xs font-bold uppercase bg-gradient-to-b from-white to-gray-200 border border-black/10 rounded shadow-[0_2px_3px_rgba(0,0,0,0.1),inset_0_1px_1px_#fff] transition-all ${
+          className="px-4 py-2 text-xs font-bold uppercase rounded transition-all"
+          style={
             activeMode === mode.key
-              ? 'from-gray-200 to-gray-300 shadow-[inset_0_2px_3px_rgba(0,0,0,0.1)]'
-              : ''
-          }`}
+              ? {
+                  background: 'linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%)',
+                  boxShadow: 'inset 0 2px 3px rgba(0,0,0,0.1)',
+                }
+              : {
+                  background: 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  boxShadow: '0 2px 3px rgba(0,0,0,0.1), inset 0 1px 1px #fff',
+                }
+          }
         >
           {mode.label}
         </button>

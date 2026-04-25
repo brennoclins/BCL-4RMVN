@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface UploadButtonProps {
   onFileSelect: (file: File) => void;
@@ -55,9 +55,13 @@ export function UploadButton({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`bg-[--color-pad-off] rounded-md cursor-pointer flex flex-col items-center justify-center p-4 shadow-[0_3px_6px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(255,51,102,0.6)] hover:bg-gray-700 transition-all text-white text-xs uppercase col-span-3 ${className} ${
-          isDragging ? 'ring-2 ring-[--color-hw-orange]' : ''
-        }`}
+        className={`rounded cursor-pointer flex flex-col items-center justify-center p-4 text-white text-xs uppercase transition-all ${className}`}
+        style={{
+          backgroundColor: 'var(--color-pad-off)',
+          boxShadow: isDragging
+            ? '0 0 15px rgba(255, 51, 102, 0.6)'
+            : '0 3px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.05)',
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

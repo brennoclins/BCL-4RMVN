@@ -7,7 +7,13 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function IconButton({ icon, className = '', ...props }: IconButtonProps) {
   return (
     <button
-      className={`p-3 bg-gradient-to-b from-white to-gray-200 border border-black/10 rounded text-[--color-text-mid] hover:border-[--color-text-mid] disabled:opacity-40 disabled:cursor-not-allowed transition-all ${className}`}
+      className={`p-3 rounded ${className}`}
+      style={{
+        background: 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)',
+        border: '1px solid rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 3px rgba(0,0,0,0.1)',
+        color: 'var(--color-text-mid)',
+      }}
       {...props}
     >
       {icon}

@@ -2,19 +2,41 @@ import { Link } from 'react-router-dom';
 
 export function Hero() {
   return (
-    <section className="flex items-center justify-center px-8 py-12 max-w-[1200px] mx-auto min-h-[70vh] gap-12">
-      <div className="flex-1 max-w-[500px]">
-        <div className="bg-[--color-text-dark] text-white px-3 py-2 inline-block text-xs font-bold uppercase mb-4 rounded">
+    <section
+      className="flex items-center justify-center px-8 py-12"
+      style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        minHeight: '70vh',
+        gap: '3rem',
+      }}
+    >
+      <div className="flex-1" style={{ maxWidth: '500px' }}>
+        <div
+          className="inline-block text-white px-2 py-1 text-[0.65rem] font-bold uppercase mb-4 rounded"
+          style={{ backgroundColor: 'var(--color-text-dark)' }}
+        >
           Professional MIDI Solutions
         </div>
-        <h1 className="text-5xl leading-tight mb-4 uppercase tracking-wide">Sinta o Som Tátil.</h1>
-        <p className="text-base text-[--color-text-mid] mb-6 leading-relaxed">
+        <h1
+          className="uppercase leading-[1.05] mb-4"
+          style={{ fontSize: '3.5rem', letterSpacing: '-2px' }}
+        >
+          Sinta o Som Tátil.
+        </h1>
+        <p className="text-base mb-6" style={{ color: 'var(--color-text-mid)', lineHeight: 1.5 }}>
           O BCL-4RMVN Professional une a precisão digital do KeyForge com a experiência tátil de
           hardware premium. Performance sem latência para músicos modernos.
         </p>
         <Link
           to="/midi-player"
-          className="inline-block px-8 py-3 text-sm font-bold uppercase bg-gradient-to-b from-white to-e0e0e0 border border-black/10 rounded-md text-[--color-text-dark] shadow-[3px_3px_8px_rgba(0,0,0,0.1),-2px_-2px_5px_#fff] hover:translate-y-[-2px] hover:shadow-[5px_5px_12px_rgba(0,0,0,0.15)] transition-all"
+          className="inline-block px-8 py-3 text-sm font-bold uppercase rounded"
+          style={{
+            background: 'linear-gradient(145deg, #ffffff, #e6e6e6)',
+            border: '1px solid rgba(0,0,0,0.1)',
+            color: 'var(--color-text-dark)',
+            boxShadow: '3px 3px 8px rgba(0,0,0,0.1), -2px -2px 5px #fff',
+          }}
         >
           Abrir KEYFORGE MIDI Player
         </Link>
@@ -30,8 +52,14 @@ export function Hero() {
 function HWPreview() {
   return (
     <div
-      className="w-[400px] h-[280px] bg-gradient-to-b from-[#f5f5f5] to-[#d0d0d0] rounded-2xl shadow-[15px_15px_40px_rgba(0,0,0,0.2),-4px_-4px_12px_#fff] p-6 grid gap-3"
+      className="rounded-2xl p-6"
       style={{
+        width: '400px',
+        height: '280px',
+        background: 'linear-gradient(145deg, #f5f5f5, #d0d0d0)',
+        boxShadow: '15px 15px 40px rgba(0,0,0,0.2), -4px -4px 12px #ffffff',
+        display: 'grid',
+        gap: '0.8rem',
         gridTemplateAreas: '"pad pad screen" "pad pad screen" "keys keys keys"',
         gridTemplateColumns: '1fr 1fr 1fr',
       }}
@@ -49,9 +77,11 @@ function HWPadMock() {
       {[0, 1, 2, 3].map((i) => (
         <div
           key={i}
-          className={`bg-[--color-pad-off] rounded shadow-[0_3px_0_#000] ${
-            i === 0 || i === 3 ? 'bg-[--color-pad-on] shadow-[0_0_12px_var(--color-pad-on)]' : ''
-          }`}
+          className="rounded"
+          style={{
+            backgroundColor: i === 0 || i === 3 ? 'var(--color-pad-on)' : 'var(--color-pad-off)',
+            boxShadow: i === 0 || i === 3 ? '0 0 12px var(--color-pad-on)' : '0 3px 0 #000',
+          }}
         />
       ))}
     </div>
@@ -61,8 +91,13 @@ function HWPadMock() {
 function HWScreenMock() {
   return (
     <div
-      className="bg-black rounded border-[3px] border-[#333] shadow-[inset_0_0_8px_rgba(0,255,68,0.3)] flex items-center justify-center text-[--color-accent-screen] font-mono text-xs"
-      style={{ gridArea: 'screen' }}
+      className="rounded flex items-center justify-center text-[--color-accent-screen] font-mono text-xs"
+      style={{
+        gridArea: 'screen',
+        backgroundColor: '#000',
+        border: '3px solid #333',
+        boxShadow: 'inset 0 0 8px rgba(0,255,68,0.3)',
+      }}
     >
       <span className="animate-pulse">4RMVN EQ</span>
     </div>
@@ -87,17 +122,32 @@ function HWKeysMock() {
 
   return (
     <div
-      className="bg-white rounded shadow-[0_4px_0_#ccc] flex items-end justify-center gap-[3px] p-2"
-      style={{ gridArea: 'keys' }}
+      className="rounded flex items-end justify-center p-2"
+      style={{
+        gridArea: 'keys',
+        backgroundColor: 'white',
+        boxShadow: '0 4px 0 #ccc',
+        gap: '3px',
+      }}
     >
       {keys.map((key, i) => (
         <div
           key={i}
-          className={`flex-1 rounded-b h-6 bg-gradient-to-b from-white to-gray-200 ${
-            key.isBlack
-              ? 'w-3 h-4 bg-gradient-to-b from-gray-600 to-gray-900 -mx-1.5 z-10 rounded-b-sm'
-              : ''
-          }`}
+          className="flex-1 rounded-b"
+          style={{
+            height: '25px',
+            background: key.isBlack
+              ? 'linear-gradient(180deg, #404040, #1a1a1a)'
+              : 'linear-gradient(180deg, #f5f5f5, #e0e0e0)',
+            ...(key.isBlack
+              ? {
+                  width: '12px',
+                  margin: '0 -6px',
+                  zIndex: 1,
+                  borderRadius: '0 0 2px 2px',
+                }
+              : {}),
+          }}
         />
       ))}
     </div>

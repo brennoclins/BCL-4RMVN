@@ -27,21 +27,30 @@ export function Nav({ variant = 'home' }: NavProps) {
   const links = variant === 'player' ? playerLinks : homeLinks;
 
   return (
-    <nav className="flex items-center justify-between w-full max-w-[1200px] mx-auto px-8 py-6 z-50">
+    <nav
+      className="w-full py-6 px-8 z-50"
+      style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
+    >
       <Link
         to="/"
-        className="text-3xl font-bold tracking-tight text-[--color-text-dark] no-underline"
+        className="text-[1.8rem] font-bold tracking-[-1px] text-[--color-text-dark] no-underline"
       >
-        BCL-4RMVN<span className="text-hw-orange">.</span>
+        BCL-4RMVN<span className="text-[--color-hw-orange]">.</span>
       </Link>
       <ul className="flex gap-8 list-none">
         {links.map((link) => (
           <li key={link.to}>
             <Link
               to={link.to}
-              className={`text-sm font-bold uppercase tracking-wide transition-colors duration-300 hover:text-hw-orange no-underline ${
+              className={`text-[0.85rem] font-bold uppercase tracking-wide transition-colors duration-300 hover:text-[--color-hw-orange] no-underline ${
                 location.pathname === link.to
-                  ? 'text-hw-orange border-b-2 border-hw-orange'
+                  ? 'text-[--color-hw-orange] border-b-2 border-[--color-hw-orange]'
                   : 'text-[--color-text-mid]'
               }`}
             >

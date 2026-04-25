@@ -1,4 +1,4 @@
-import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '@/types';
+import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '../types';
 
 export interface DrumKitConfig {
   name: string;

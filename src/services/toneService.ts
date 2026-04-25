@@ -1,11 +1,11 @@
-import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '@/types';
+import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '../types';
 import {
   drumKits,
   mainInstruments,
   bassInstruments,
   guitarInstruments,
   brassInstruments,
-} from '@/services/instrumentConfigs';
+} from './instrumentConfigs';
 
 export interface ToneInstance {
   start: () => Promise<void>;

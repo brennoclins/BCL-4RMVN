@@ -1,4 +1,4 @@
-import type { MidiData, DetectedInstruments } from '@/types';
+import type { MidiData, DetectedInstruments } from '../types';
 import { instrumentNames } from './instrumentNames';
 
 export function detectInstruments(midiData: MidiData): DetectedInstruments {

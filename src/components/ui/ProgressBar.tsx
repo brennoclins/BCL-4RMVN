@@ -15,12 +15,21 @@ export function ProgressBar({ progress, onClick, className = '' }: ProgressBarPr
 
   return (
     <div
-      className={`h-3 bg-[#101010] rounded-md cursor-pointer relative overflow-hidden shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] ${className}`}
+      className={`rounded cursor-pointer relative overflow-hidden ${className}`}
       onClick={handleClick}
+      style={{
+        height: '12px',
+        background: '#101010',
+        boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.5)',
+      }}
     >
       <div
-        className="h-full bg-[--color-accent-screen] rounded-md transition-all duration-100"
-        style={{ width: `${Math.min(progress, 100)}%` }}
+        className="h-full rounded"
+        style={{
+          width: `${Math.min(progress, 100)}%`,
+          backgroundColor: 'var(--color-accent-screen)',
+          transition: 'width 0.1s linear',
+        }}
       />
     </div>
   );

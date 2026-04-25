@@ -1,5 +1,5 @@
-import { Select } from '@/components/ui';
-import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '@/types';
+import { Select } from '../ui';
+import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '../../types';
 
 interface HWControlsProps {
   soundMode: 'samples' | 'digital';
@@ -72,7 +72,7 @@ export function HWControls({
   showBrass = false,
 }: HWControlsProps) {
   return (
-    <div className="flex flex-col gap-4 justify-around">
+    <div className="flex flex-col gap-4" style={{ justifyContent: 'space-around' }}>
       <SettingRow
         label="Sound"
         value={soundMode}
@@ -136,8 +136,10 @@ interface SettingRowProps {
 
 function SettingRow({ label, value, onChange, options }: SettingRowProps) {
   return (
-    <div className="flex items-center justify-end gap-2">
-      <span className="text-xs text-[--color-text-mid] uppercase">{label}</span>
+    <div className="flex items-center" style={{ justifyContent: 'flex-end', gap: '0.5rem' }}>
+      <span className="text-xs uppercase" style={{ color: 'var(--color-text-mid)' }}>
+        {label}
+      </span>
       <Select options={options} value={value} onChange={onChange} />
     </div>
   );

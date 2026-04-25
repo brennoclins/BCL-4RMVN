@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { HomePage, MidiPlayerPage, AudioPlayerPage } from '@/pages';
+import { HomePage, MidiPlayerPage, AudioPlayerPage } from './pages';
 import './styles/globals.css';
 
 export function App() {

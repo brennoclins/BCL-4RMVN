@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatTime, clamp, capitalize, truncate } from '@/utils/helpers';
+import { formatTime, clamp, capitalize, truncate } from '../utils/helpers';
 
 describe('helpers', () => {
   describe('formatTime', () => {

@@ -4,20 +4,20 @@ test.describe('Audio Player', () => {
   test('player container loads', async ({ page }) => {
     await page.goto('/audio-player');
 
-    await expect(page.locator('text=BCL-4RMVN').first()).toBeVisible();
-    await expect(page.locator('text=Select Audio File')).toBeVisible();
+    await expect(page.locator('text=501BCLST').first()).toBeVisible();
+    await expect(page.locator('text=Ready to Load')).toBeVisible();
   });
 
   test('upload button is visible', async ({ page }) => {
     await page.goto('/audio-player');
 
-    await expect(page.locator('button:has-text("Load Audio")')).toBeVisible();
+    await expect(page.locator('text=Importar MP3/WAV').first()).toBeVisible();
   });
 
-  test('buttons have correct initial state', async ({ page }) => {
+  test('playlist sidebar shows empty state', async ({ page }) => {
     await page.goto('/audio-player');
 
-    const playBtn = page.locator('button:has-text("PLAY")');
-    await expect(playBtn).toBeDisabled();
+    await expect(page.locator('text=Playlist Data')).toBeVisible();
+    await expect(page.locator('text=Nenhum arquivo...')).toBeVisible();
   });
 });

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Nav } from '@/components/layout';
-import { useMidiPlayer } from '@/hooks/useMidiPlayer';
+import { Nav } from '../components/layout';
+import { useMidiPlayer } from '../hooks/useMidiPlayer';
 import {
   PlayerContainer,
   HWLogoSection,
@@ -10,8 +10,8 @@ import {
   HWKeysButtons,
   HWTransport,
   HWVolumeSection,
-} from '@/components/midi-player';
-import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '@/types';
+} from '../components/midi-player';
+import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '../types';
 
 export function MidiPlayerPage() {
   const {

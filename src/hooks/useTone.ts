@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { toneService } from '@/services/toneService';
+import { toneService } from '../services/toneService';
 
 export function useTone() {
   const [isReady, setIsReady] = useState(false);

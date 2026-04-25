@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getDuration, detectInstruments } from '@/services/midiParser';
-import type { MidiData } from '@/types';
+import { getDuration, detectInstruments } from './midiParser';
+import type { MidiData } from '../types';
 
 describe('midiParser', () => {
   describe('getDuration', () => {

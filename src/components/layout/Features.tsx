@@ -21,13 +21,19 @@ const features: Feature[] = [
   },
 ];
 
-interface FeaturesProps {
-  id?: string;
-}
-
-export function Features({ id }: FeaturesProps = {}) {
+export function Features({ id }: { id?: string }) {
   return (
-    <section id={id} className="px-8 py-16 max-w-[1200px] mx-auto grid grid-cols-3 gap-6">
+    <section
+      id={id}
+      className="py-16 px-8"
+      style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '1.5rem',
+      }}
+    >
       {features.map((feature) => (
         <FeatureCard key={feature.title} {...feature} />
       ))}
@@ -42,9 +48,18 @@ interface FeatureCardProps {
 
 function FeatureCard({ title, description }: FeatureCardProps) {
   return (
-    <div className="bg-white/40 backdrop-blur p-6 rounded-lg border border-white/50">
+    <div
+      className="p-6 rounded-lg"
+      style={{
+        background: 'rgba(255, 255, 255, 0.4)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.5)',
+      }}
+    >
       <h3 className="mb-2 text-sm uppercase">{title}</h3>
-      <p className="text-sm text-[--color-text-mid] leading-relaxed">{description}</p>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-mid)' }}>
+        {description}
+      </p>
     </div>
   );
 }

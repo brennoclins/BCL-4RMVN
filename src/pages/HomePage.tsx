@@ -1,4 +1,4 @@
-import { Nav, Hero, Features, SectionLink } from '@/components/layout';
+import { Nav, Hero, Features, SectionLink } from '../components/layout';
 
 export function HomePage() {
   return (

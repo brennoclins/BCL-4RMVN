@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef } from 'react';
 import { Midi } from '@tonejs/midi';
-import type { MidiData } from '@/types';
-import { getDuration, detectInstruments } from '@/services/midiParser';
-import { formatTime } from '@/utils/helpers';
-import { toneService, getInstrumentConfig } from '@/services/toneService';
+import type { MidiData } from '../types';
+import { getDuration, detectInstruments } from '../services/midiParser';
+import { formatTime } from '../utils/helpers';
+import { toneService, getInstrumentConfig } from '../services/toneService';
 
 interface MidiPlayerState {
   midiData: MidiData | null;

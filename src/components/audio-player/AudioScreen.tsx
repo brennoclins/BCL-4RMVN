@@ -1,37 +1,60 @@
+import { useEffect, useRef } from 'react';
+
 interface AudioScreenProps {
-  status: string;
-  statusVariant?: 'ready' | 'error' | 'default';
-  duration: string;
+  trackName: string;
+  artistName: string;
+  isPlaying: boolean;
 }
 
-export function AudioScreen({ status, statusVariant = 'default', duration }: AudioScreenProps) {
-  const statusClasses = {
-    ready: 'text-[--color-accent-screen]',
-    error: 'text-red-500',
-    default: 'text-[--color-accent-screen]',
-  };
+export function AudioScreen({ trackName, artistName, isPlaying }: AudioScreenProps) {
+  const eqRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number>(0);
+
+  useEffect(() => {
+    const animateEQ = () => {
+      if (eqRef.current) {
+        const bars = eqRef.current.querySelectorAll('.eq-bar');
+        bars.forEach((bar) => {
+          const el = bar as HTMLElement;
+          el.style.height = isPlaying ? `${Math.random() * 80 + 10}%` : '10%';
+        });
+      }
+      animationRef.current = requestAnimationFrame(animateEQ);
+    };
+
+    animateEQ();
+
+    return () => {
+      cancelAnimationFrame(animationRef.current);
+    };
+  }, [isPlaying]);
 
   return (
-    <div className="bg-[#0a0a0a] rounded-lg p-4 shadow-[inset_0_3px_10px_rgba(0,0,0,0.8)] border-2 border-[#303030] flex flex-col justify-between font-mono min-h-[120px]">
-      <div className="flex justify-between text-xs text-white uppercase">
-        <span>Mode</span>
-        <span className="text-[--color-accent-screen]">AUDIO</span>
-      </div>
-
-      <div className={`text-sm uppercase my-2 min-h-[1.2em] ${statusClasses[statusVariant]}`}>
-        {status}
+    <div
+      className="bg-[#0a0a0a] rounded-[10px] p-6 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-[#2a2a2a] flex flex-col justify-between font-mono"
+      style={{ gridArea: 'screen' }}
+    >
+      <div>
+        <div className="text-[#008822] text-[0.8rem] uppercase mb-2">{artistName}</div>
+        <div className="text-[var(--color-accent-screen)] text-[1.2rem] uppercase">
+          {trackName}
+        </div>
       </div>
 
       <div
-        className="flex-1 my-2 opacity-30 rounded"
+        ref={eqRef}
+        className="h-[60px] flex items-end gap-[2px] mt-4"
         style={{
-          background: 'linear-gradient(180deg, rgba(0,255,68,0.1) 0%, rgba(0,255,68,0.3) 100%)',
+          backgroundImage: 'linear-gradient(0deg, rgba(0,255,68,0.1) 1px, transparent 1px)',
+          backgroundSize: '100% 10px',
         }}
-      />
-
-      <div className="flex justify-between text-xs text-white">
-        <span>Length</span>
-        <span>{duration}</span>
+      >
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex-1 bg-[var(--color-accent-screen)] h-[10%] transition-[height] duration-[100ms] opacity-70 rounded-sm"
+          />
+        ))}
       </div>
     </div>
   );

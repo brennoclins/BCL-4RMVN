@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { formatTime } from '@/utils/helpers';
+import { formatTime } from '../utils/helpers';
 
 interface AudioPlayerState {
   audioData: { name: string; duration: number } | null;
