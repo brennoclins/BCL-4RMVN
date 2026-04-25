@@ -53,7 +53,7 @@ function Footer() {
             </h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li><a href="/midi-player" className="hover:text-white transition-colors">KEYFORGE MIDI</a></li>
-              <li><a href="/audio-player" className="hover:text-white transition-colors">Audio Player</a></li>
+              <li><a href="/audio-player" className="hover:text-white transition-colors">501BCLST</a></li>
               <li><span className="text-gray-600">VST Plugins (Em breve)</span></li>
             </ul>
           </div>
