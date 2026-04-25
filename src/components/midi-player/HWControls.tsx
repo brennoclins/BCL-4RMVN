@@ -72,7 +72,7 @@ export function HWControls({
   showBrass = false,
 }: HWControlsProps) {
   return (
-    <div className="flex flex-col gap-4" style={{ justifyContent: 'space-around' }}>
+    <div className="flex flex-col gap-4 justify-around h-full">
       <SettingRow
         label="Sound"
         value={soundMode}
@@ -136,10 +136,8 @@ interface SettingRowProps {
 
 function SettingRow({ label, value, onChange, options }: SettingRowProps) {
   return (
-    <div className="flex items-center" style={{ justifyContent: 'flex-end', gap: '0.5rem' }}>
-      <span className="text-xs uppercase" style={{ color: 'var(--color-text-mid)' }}>
-        {label}
-      </span>
+    <div className="flex items-center justify-end gap-2">
+      <span className="text-[0.7rem] uppercase text-[var(--color-text-mid)]">{label}</span>
       <Select options={options} value={value} onChange={onChange} />
     </div>
   );

@@ -14,31 +14,21 @@ export function HWScreen({
   const statusColor = statusVariant === 'error' ? '#ff4444' : 'var(--color-accent-screen)';
 
   return (
-    <div
-      className="rounded-lg p-4 font-mono flex flex-col justify-between"
-      style={{
-        backgroundColor: '#0a0a0a',
-        boxShadow: 'inset 0 3px 10px rgba(0,0,0,0.8)',
-        border: '2px solid #303030',
-        minHeight: '140px',
-      }}
-    >
+    <div className="bg-[#0a0a0a] rounded-lg p-4 shadow-[inset_0_3px_10px_rgba(0,0,0,0.8)] border-2 border-[#303030] font-mono flex flex-col justify-between min-h-[140px]">
       <div className="flex justify-between text-xs text-white uppercase">
         <span>Mode</span>
-        <span style={{ color: 'var(--color-accent-screen)' }}>{modeValue}</span>
+        <span className="text-[var(--color-accent-screen)]">{modeValue}</span>
       </div>
 
-      <div className="text-sm uppercase my-2 min-h-[1.2em]" style={{ color: statusColor }}>
+      <div className="text-[0.9rem] uppercase my-2 min-h-[1.2em]" style={{ color: statusColor }}>
         {status}
       </div>
 
       <div
-        className="flex-1 my-2 rounded"
+        className="flex-1 my-2 rounded opacity-30"
         style={{
-          background: `linear-gradient(0deg, var(--color-accent-screen) 1px, transparent 1px),
-                       linear-gradient(90deg, var(--color-accent-screen) 1px, transparent 1px)`,
+          background: `linear-gradient(0deg, var(--color-accent-screen) 1px, transparent 1px), linear-gradient(90deg, var(--color-accent-screen) 1px, transparent 1px)`,
           backgroundSize: '20px 20px',
-          opacity: 0.3,
         }}
       />
 

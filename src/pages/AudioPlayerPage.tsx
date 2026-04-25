@@ -198,9 +198,9 @@ export function AudioPlayerPage() {
 
       <main className="flex-1 flex items-center justify-center p-8">
         <AudioPlayerContainer>
-          <header className="flex justify-between items-start border-b-2 border-black/10 pb-4 mb-6">
+          <header className="flex justify-between items-start border-b-2 border-black/10 !pb-6">
             <div>
-              <h2 className="text-[1.8rem] font-bold tracking-tighter leading-none uppercase">
+              <h2 className="text-[2.4rem] font-bold tracking-tighter leading-none uppercase">
                 501BCLST<span className="text-[var(--color-hw-orange)]">.</span>
               </h2>
               <p className="text-[0.7rem] text-[var(--color-text-mid)] uppercase tracking-[2px] mt-1">

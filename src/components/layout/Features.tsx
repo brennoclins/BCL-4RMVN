@@ -6,18 +6,15 @@ interface Feature {
 const features: Feature[] = [
   {
     title: 'Multitimbral',
-    description:
-      'Suporte total a múltiplos canais MIDI com samples reais de pianos, baixos e guitarras.',
+    description: 'Suporte total a múltiplos canais MIDI com samples reais de pianos, baixos e guitarras.',
   },
   {
     title: 'Skeuomorfismo',
-    description:
-      'Interface desenhada para simular a profundidade e a resposta tátil de controladores físicos.',
+    description: 'Interface desenhada para simular a profundidade e a resposta tátil de controladores físicos.',
   },
   {
     title: '10 Drum Kits',
-    description:
-      'De baterias acústicas a clássicos como TR-808 e LinnDrum com controle de pads realistas.',
+    description: 'De baterias acústicas a clássicos como TR-808 e LinnDrum com controle de pads realistas.',
   },
 ];
 
@@ -25,14 +22,7 @@ export function Features({ id }: { id?: string }) {
   return (
     <section
       id={id}
-      className="py-16 px-8"
-      style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '1.5rem',
-      }}
+      className="grid grid-cols-1 md:grid-cols-3 gap-6 py-16 px-8 max-w-[1200px] mx-auto"
     >
       {features.map((feature) => (
         <FeatureCard key={feature.title} {...feature} />
@@ -48,16 +38,9 @@ interface FeatureCardProps {
 
 function FeatureCard({ title, description }: FeatureCardProps) {
   return (
-    <div
-      className="p-6 rounded-lg"
-      style={{
-        background: 'rgba(255, 255, 255, 0.4)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.5)',
-      }}
-    >
-      <h3 className="mb-2 text-sm uppercase">{title}</h3>
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-mid)' }}>
+    <div className="bg-white/40 backdrop-blur-md p-6 rounded-xl border border-white/50">
+      <h3 className="font-bold uppercase mb-2 text-lg">{title}</h3>
+      <p className="text-[var(--color-text-mid)] text-[0.85rem] leading-relaxed">
         {description}
       </p>
     </div>

@@ -1,5 +1,3 @@
-import { ProgressBar } from '../ui';
-
 interface HWVolumeSectionProps {
   progress: number;
   currentTime: string;
@@ -9,21 +7,30 @@ interface HWVolumeSectionProps {
 export function HWVolumeSection({ progress, currentTime, onProgressClick }: HWVolumeSectionProps) {
   return (
     <div
-      className="flex items-center gap-4"
-      style={{
-        paddingTop: '1.5rem',
-        borderTop: '1px solid rgba(0,0,0,0.1)',
-        gridColumn: 'span 3',
-      }}
+      className="flex items-center gap-4 pt-6 border-t border-black/10 col-span-3"
+      style={{ gridArea: 'volume' }}
     >
-      <span className="text-xs uppercase" style={{ color: 'var(--color-text-mid)' }}>
+      <span className="text-[0.7rem] uppercase text-[var(--color-text-mid)]">
         Progress
       </span>
-      <ProgressBar progress={progress} onClick={onProgressClick} className="flex-1" />
-      <span
-        className="text-xs font-mono"
-        style={{ color: 'var(--color-text-mid)', minWidth: '60px' }}
+
+      <div
+        className="flex-1 h-[12px] bg-[#101010] rounded cursor-pointer shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] overflow-hidden relative"
+        onClick={(e) => {
+          if (onProgressClick) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const percent = ((e.clientX - rect.left) / rect.width) * 100;
+            onProgressClick(Math.max(0, Math.min(100, percent)));
+          }
+        }}
       >
+        <div
+          className="h-full bg-[var(--color-accent-screen)] rounded transition-all duration-100"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <span className="text-[0.7rem] font-mono text-[var(--color-text-mid)] min-w-[60px]">
         {currentTime}
       </span>
     </div>

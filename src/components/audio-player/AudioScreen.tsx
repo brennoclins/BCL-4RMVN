@@ -30,16 +30,16 @@ export function AudioScreen({ trackName, artistName, isPlaying }: AudioScreenPro
   }, [isPlaying]);
 
   return (
-    <section className="bg-[#0a0a0a] rounded-xl p-6 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-[#2a2a2a] font-mono min-h-[180px] flex flex-col justify-between">
+    <section className="max-w-lg min-w-lg bg-[#0a0a0a] rounded-xl !p-6 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-[#2a2a2a] font-mono min-h-45 flex flex-col justify-between">
       <div>
-        <div className="text-[#008822] text-[0.8rem] uppercase">{artistName}</div>
-        <div className="text-[var(--color-accent-screen)] text-[1.4rem] uppercase truncate">
+        <div className="text-[#008822] text-[0.8rem] uppercase" id="artistName">{artistName}</div>
+        <div className="text-accent-screen text-[1.4rem] uppercase truncate" id="trackName">
           {trackName}
         </div>
       </div>
       <div
         ref={eqRef}
-        className="h-[60px] flex items-end gap-[2px] bg-[length:100%_10px]"
+        className="h-15 flex items-end gap-0.5 bg-size[100%_10px]"
         style={{
           backgroundImage: 'linear-gradient(0deg, rgba(0,255,68,0.1) 1px, transparent 1px)',
         }}
@@ -47,7 +47,7 @@ export function AudioScreen({ trackName, artistName, isPlaying }: AudioScreenPro
         {Array.from({ length: 30 }).map((_, i) => (
           <div
             key={i}
-            className="flex-1 bg-[var(--color-accent-screen)] opacity-70 rounded-t-[1px] transition-all duration-100 h-[10%]"
+            className="eq-bar flex-1 bg-accent-screen opacity-70 rounded-t-[1px] transition-all duration-100 h-[10%]"
           />
         ))}
       </div>

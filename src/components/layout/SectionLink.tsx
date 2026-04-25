@@ -11,13 +11,12 @@ export function SectionLink({ to, title, description, emoji }: SectionLinkProps)
   return (
     <Link
       to={to}
-      className="block text-center py-8 px-8 no-underline transition-colors"
-      style={{ color: 'var(--color-text-dark)' }}
+      className="block text-center py-12 px-8 hover:text-[var(--color-hw-orange)] transition-colors no-underline group"
     >
-      <h2 className="mb-2" style={{ fontSize: '1.5rem', textTransform: 'uppercase' }}>
-        {emoji} {title}
+      <h2 className="text-2xl font-bold uppercase mb-1 flex items-center justify-center gap-2 text-[var(--color-text-dark)] group-hover:text-[var(--color-hw-orange)]">
+        <span>{emoji}</span> {title}
       </h2>
-      <p className="text-sm" style={{ color: 'var(--color-text-mid)' }}>
+      <p className="text-[var(--color-text-mid)] text-[0.85rem]">
         {description}
       </p>
     </Link>

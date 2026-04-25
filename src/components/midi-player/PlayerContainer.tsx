@@ -7,21 +7,11 @@ interface PlayerContainerProps {
 export function PlayerContainer({ children }: PlayerContainerProps) {
   return (
     <div
-      className="w-full p-8 rounded-xl relative"
+      className="w-full p-8 rounded-xl relative bg-gradient-to-br from-[var(--color-hw-case-light)] to-[var(--color-hw-case-base)] border border-black/5 shadow-[0_15px_30px_rgba(0,0,0,0.2),0_5px_10px_rgba(0,0,0,0.1),inset_0_1px_1px_var(--color-hw-case-light)] max-w-[900px] grid gap-[1.5rem]"
       style={{
-        maxWidth: '900px',
-        backgroundColor: 'var(--color-hw-case-base)',
-        backgroundImage:
-          'linear-gradient(145deg, var(--color-hw-case-light) 0%, var(--color-hw-case-base) 100%)',
-        border: '1px solid rgba(0, 0, 0, 0.05)',
-        boxShadow:
-          '0 15px 30px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.1), inset 0 1px 1px var(--color-hw-case-light)',
-        display: 'grid',
-        gridTemplateAreas:
-          '"logo screen screen controls" "pads screen screen keys" "pads transport transport transport" "volume volume volume volume"',
+        gridTemplateAreas: '"logo screen screen controls" "pads screen screen keys" "pads transport transport transport" "volume volume volume volume"',
         gridTemplateColumns: '1fr 2.5fr 1fr',
         gridTemplateRows: 'auto 2fr auto auto',
-        gap: '1.5rem',
       }}
     >
       {children}

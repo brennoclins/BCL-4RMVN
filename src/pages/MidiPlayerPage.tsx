@@ -92,11 +92,11 @@ export function MidiPlayerPage() {
 
       <main className="flex-1 flex items-center justify-center p-8">
         <PlayerContainer>
-          <div style={{ gridArea: 'logo' }}>
+          <div className="col-start-1 row-start-1">
             <HWLogoSection />
           </div>
 
-          <div style={{ gridArea: 'screen' }}>
+          <div className="col-start-2 row-start-1 col-span-2">
             <HWScreen
               modeValue={soundMode === 'samples' ? 'SAMPLES' : 'DIGITAL'}
               status={getStatusText()}
@@ -105,7 +105,7 @@ export function MidiPlayerPage() {
             />
           </div>
 
-          <div style={{ gridArea: 'controls' }}>
+          <div className="col-start-4 row-start-1 row-span-2">
             <HWControls
               soundMode={soundMode}
               onSoundModeChange={setSoundMode}
@@ -125,15 +125,15 @@ export function MidiPlayerPage() {
             />
           </div>
 
-          <div style={{ gridArea: 'pads' }}>
+          <div className="col-start-1 row-start-2 row-span-2">
             <HWPads instruments={instruments} onFileSelect={loadFile} />
           </div>
 
-          <div style={{ gridArea: 'keys' }}>
+          <div className="col-start-4 row-start-3">
             <HWKeysButtons />
           </div>
 
-          <div style={{ gridArea: 'transport' }}>
+          <div className="col-start-2 col-span-3 row-start-3">
             <HWTransport
               isPlaying={isPlaying}
               onPlayPause={handlePlayPause}
@@ -142,7 +142,7 @@ export function MidiPlayerPage() {
             />
           </div>
 
-          <div style={{ gridArea: 'volume' }}>
+          <div className="col-span-3 row-start-4">
             <HWVolumeSection progress={progress} currentTime={formattedTime} />
           </div>
         </PlayerContainer>

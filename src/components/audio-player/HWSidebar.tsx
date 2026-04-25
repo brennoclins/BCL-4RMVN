@@ -15,12 +15,12 @@ export function HWSidebar({ tracks, currentIndex, onSelectTrack, onFileUpload }:
   };
 
   return (
-    <aside className="w-[280px] bg-[#d8d8d8] rounded-lg p-5 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1)] flex flex-col gap-4">
+    <aside className="w-[280px] bg-[#d8d8d8] rounded-lg !p-4 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1)] flex flex-col gap-4">
       <span className="text-[0.7rem] font-bold uppercase text-[var(--color-text-mid)]">
         Playlist Data
       </span>
 
-      <ul className="overflow-y-auto h-[250px] flex-1">
+      <ul id="fileList" className="overflow-y-auto h-[250px] flex-1">
         {tracks.length === 0 ? (
           <li className="text-[0.8rem] p-3 rounded bg-white/30 truncate italic text-[var(--color-text-mid)]">
             Nenhum arquivo...
@@ -30,11 +30,10 @@ export function HWSidebar({ tracks, currentIndex, onSelectTrack, onFileUpload }:
             <li
               key={index}
               onClick={() => onSelectTrack(index)}
-              className={`text-[0.8rem] p-3 rounded mb-1 cursor-pointer transition-all ${
-                index === currentIndex
-                  ? 'bg-[var(--color-hw-orange)] text-white shadow-md'
-                  : 'bg-white/30 hover:bg-white/50'
-              }`}
+              className={`file-item text-[0.8rem] p-3 rounded mb-1 cursor-pointer transition-all ${index === currentIndex
+                ? 'bg-[var(--color-hw-orange)] text-white shadow-md'
+                : 'bg-white/30 hover:bg-white/50'
+                }`}
             >
               {track.name}
             </li>
