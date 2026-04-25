@@ -40,6 +40,29 @@ export function useMidiPlayer() {
 
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
+  const pauseRef = useRef<() => void>(() => {});
+
+  const pause = useCallback(() => {
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+
+    const tone = toneService.get();
+    if (tone) {
+      tone.Transport.stop();
+      tone.Transport.cancel();
+    }
+
+    setState((prev) => ({
+      ...prev,
+      status: 'paused',
+      isPlaying: false,
+      isPaused: true,
+    }));
+  }, []);
+
+  pauseRef.current = pause;
 
   const loadFile = useCallback(async (file: File) => {
     setState((prev) => ({ ...prev, status: 'loading', error: null }));
@@ -126,30 +149,10 @@ export function useMidiPlayer() {
       }));
 
       if (elapsed >= state.duration) {
-        pause();
+        pauseRef.current();
       }
     }, 50);
   }, [state.midiData, state.duration]);
-
-  const pause = useCallback(() => {
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
-
-    const tone = toneService.get();
-    if (tone) {
-      tone.Transport.stop();
-      tone.Transport.cancel();
-    }
-
-    setState((prev) => ({
-      ...prev,
-      status: 'paused',
-      isPlaying: false,
-      isPaused: true,
-    }));
-  }, []);
 
   const stop = useCallback(() => {
     if (progressInterval.current) {

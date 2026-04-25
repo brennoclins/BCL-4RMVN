@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { formatTime } from '@/utils/helpers';
 
 interface AudioPlayerState {
@@ -25,6 +25,13 @@ export function useAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const clearProgressInterval = useCallback(() => {
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+  }, []);
+
   const loadFile = useCallback((file: File) => {
     setState((prev) => ({ ...prev, status: 'loading', error: null }));
 
@@ -47,10 +54,6 @@ export function useAudioPlayer() {
         }));
       });
 
-      audio.addEventListener('ended', () => {
-        pause();
-      });
-
       audio.addEventListener('error', () => {
         setState((prev) => ({
           ...prev,
@@ -70,8 +73,15 @@ export function useAudioPlayer() {
   const play = useCallback(async () => {
     if (!audioRef.current) return;
 
+    const currentPause = state.status === 'paused';
+
     try {
       await audioRef.current.play();
+
+      if (!currentPause) {
+        audioRef.current.currentTime = 0;
+      }
+
       setState((prev) => ({
         ...prev,
         status: 'playing',
@@ -94,24 +104,21 @@ export function useAudioPlayer() {
     } catch {
       setState((prev) => ({ ...prev, status: 'error', error: 'Playback failed' }));
     }
-  }, []);
+  }, [state.status]);
 
   const pause = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
 
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
+    clearProgressInterval();
 
     setState((prev) => ({
       ...prev,
       status: 'paused',
       isPlaying: false,
     }));
-  }, []);
+  }, [clearProgressInterval]);
 
   const stop = useCallback(() => {
     if (audioRef.current) {
@@ -119,10 +126,7 @@ export function useAudioPlayer() {
       audioRef.current.currentTime = 0;
     }
 
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
+    clearProgressInterval();
 
     setState((prev) => ({
       ...prev,
@@ -131,7 +135,7 @@ export function useAudioPlayer() {
       currentTime: 0,
       progress: 0,
     }));
-  }, []);
+  }, [clearProgressInterval]);
 
   const seek = useCallback((progress: number) => {
     if (audioRef.current) {
@@ -143,17 +147,6 @@ export function useAudioPlayer() {
         progress,
       }));
     }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        URL.revokeObjectURL(audioRef.current.src);
-      }
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-    };
   }, []);
 
   return {
