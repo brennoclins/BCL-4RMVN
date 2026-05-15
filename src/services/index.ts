@@ -5,9 +5,7 @@ export {
   bassInstruments,
   guitarInstruments,
   brassInstruments,
-  stringsInstruments,
-  synthInstruments,
-  organInstruments,
 } from './instrumentConfigs';
-export { detectInstruments, getDuration, getTrackName, getProgramName } from './midiParser';
-export { toneService } from './toneService';
+export { detectInstruments, getDuration } from './midiParser';
+export { toneService, getInstrumentConfig } from './toneService';
+export { formatTime, clamp, debounce, capitalize, truncate } from '../utils/helpers';

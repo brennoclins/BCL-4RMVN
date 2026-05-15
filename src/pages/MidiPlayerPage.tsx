@@ -1,30 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useMidiPlayer } from '../hooks/useMidiPlayer';
 import {
   PlayerContainer,
   HWLogoSection,
   HWScreen,
+  HWControls,
   HWPads,
+  HWKeysButtons,
   HWTransport,
   HWVolumeSection,
-  InstrumentPads,
 } from '../components/midi-player';
-import type {
-  DrumKitType,
-  MainInstrumentType,
-  BassType,
-  GuitarType,
-  BrassType,
-  StringsType,
-  SynthType,
-  OrganType,
-} from '../types';
+import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '../types';
 
 export function MidiPlayerPage() {
   const {
     status,
     fileName,
-    midiData,
     isPlaying,
     progress,
     formattedTime,
@@ -34,35 +25,14 @@ export function MidiPlayerPage() {
     play,
     pause,
     stop,
-    setTrackMute,
-    setInstrumentSelections,
   } = useMidiPlayer();
 
+  const [soundMode, setSoundMode] = useState<'samples' | 'digital'>('samples');
   const [drumKit, setDrumKit] = useState<DrumKitType>('acoustic');
   const [mainInstrument, setMainInstrument] = useState<MainInstrumentType>('casio');
   const [bass, setBass] = useState<BassType>('finger');
   const [guitar, setGuitar] = useState<GuitarType>('nylon');
   const [brass, setBrass] = useState<BrassType>('trumpet');
-  const [strings, setStrings] = useState<StringsType>('strings');
-  const [synth, setSynth] = useState<SynthType>('lead');
-  const [organ, setOrgan] = useState<OrganType>('church');
-
-  const applyInstrumentChanges = useCallback(() => {
-    setInstrumentSelections({
-      drumKit,
-      mainInstrument,
-      bass,
-      guitar,
-      brass,
-      strings,
-      synth,
-      organ,
-    });
-  }, [drumKit, mainInstrument, bass, guitar, brass, strings, synth, organ, setInstrumentSelections]);
-
-  useEffect(() => {
-    applyInstrumentChanges();
-  }, [applyInstrumentChanges]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,15 +61,7 @@ export function MidiPlayerPage() {
     }
   };
 
-  const trackList = midiData
-    ? midiData.tracks.map((track, index) => ({
-        index,
-        name: track.name,
-        channel: track.channel,
-        muted: track.muted,
-        noteCount: track.notes.length,
-      }))
-    : [];
+  const instruments = Array.from(detectedInstruments.instruments);
 
   const getStatusText = () => {
     switch (status) {
@@ -135,19 +97,39 @@ export function MidiPlayerPage() {
 
         <div className="col-start-2 row-start-1 col-span-2">
           <HWScreen
-            modeValue="SAMPLES"
+            modeValue={soundMode === 'samples' ? 'SAMPLES' : 'DIGITAL'}
             status={getStatusText()}
             statusVariant={getStatusVariant()}
             duration={formattedDuration}
           />
         </div>
 
-        <div className="col-start-1 row-start-2 row-span-2">
-          <HWPads
-            tracks={trackList}
-            onFileSelect={loadFile}
-            onToggleMute={setTrackMute}
+        <div className="col-start-4 row-start-1 row-span-2">
+          <HWControls
+            soundMode={soundMode}
+            onSoundModeChange={setSoundMode}
+            drumKit={drumKit}
+            onDrumKitChange={setDrumKit}
+            mainInstrument={mainInstrument}
+            onMainInstrumentChange={setMainInstrument}
+            bass={bass}
+            onBassChange={setBass}
+            guitar={guitar}
+            onGuitarChange={setGuitar}
+            brass={brass}
+            onBrassChange={setBrass}
+            showBass={detectedInstruments.channels.bass}
+            showGuitar={detectedInstruments.channels.guitar}
+            showBrass={detectedInstruments.channels.brass}
           />
+        </div>
+
+        <div className="col-start-1 row-start-2 row-span-2">
+          <HWPads instruments={instruments} onFileSelect={loadFile} />
+        </div>
+
+        <div className="col-start-4 row-start-3">
+          <HWKeysButtons />
         </div>
 
         <div className="col-start-2 col-span-3 row-start-3">
@@ -161,30 +143,6 @@ export function MidiPlayerPage() {
 
         <div className="col-span-3 row-start-4">
           <HWVolumeSection progress={progress} currentTime={formattedTime} />
-        </div>
-
-        <div className="col-span-3 row-start-5">
-          <InstrumentPads
-            drumKit={drumKit}
-            onDrumKitChange={setDrumKit}
-            mainInstrument={mainInstrument}
-            onMainInstrumentChange={setMainInstrument}
-            bass={bass}
-            onBassChange={setBass}
-            guitar={guitar}
-            onGuitarChange={setGuitar}
-            brass={brass}
-            onBrassChange={setBrass}
-            strings={strings}
-            onStringsChange={setStrings}
-            synth={synth}
-            onSynthChange={setSynth}
-            organ={organ}
-            onOrganChange={setOrgan}
-            showBass={detectedInstruments.channels.bass}
-            showGuitar={detectedInstruments.channels.guitar}
-            showBrass={detectedInstruments.channels.brass}
-          />
         </div>
       </PlayerContainer>
     </div>

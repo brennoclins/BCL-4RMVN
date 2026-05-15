@@ -1,6 +1,5 @@
 export interface MidiNote {
   name: string;
-  midi: number;
   time: number;
   duration: number;
   velocity: number;
@@ -9,16 +8,11 @@ export interface MidiNote {
 export interface MidiTrack {
   channel: number;
   program?: number;
-  name: string;
   notes: MidiNote[];
-  muted: boolean;
 }
 
 export interface MidiData {
   tracks: MidiTrack[];
-  name: string;
-  bpm: number;
-  timeSignature: number[];
 }
 
 export interface InstrumentConfig {
@@ -47,12 +41,6 @@ export type GuitarType = 'nylon' | 'electric';
 
 export type BrassType = 'trumpet' | 'trombone' | 'sax';
 
-export type StringsType = 'strings' | 'pizzicato';
-
-export type SynthType = 'lead' | 'pad';
-
-export type OrganType = 'church' | 'electric';
-
 export type SoundMode = 'samples' | 'digital';
 
 export interface AudioData {
@@ -67,19 +55,4 @@ export interface DetectedInstruments {
     guitar: boolean;
     brass: boolean;
   };
-}
-
-export interface TrackMuteState {
-  [trackIndex: number]: boolean;
-}
-
-export interface InstrumentSelections {
-  drumKit: DrumKitType;
-  mainInstrument: MainInstrumentType;
-  bass: BassType;
-  guitar: GuitarType;
-  brass: BrassType;
-  strings: StringsType;
-  synth: SynthType;
-  organ: OrganType;
 }

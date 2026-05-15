@@ -6,4 +6,3 @@ export { HWPads } from './HWPads';
 export { HWKeysButtons } from './HWKeysButtons';
 export { HWTransport } from './HWTransport';
 export { HWVolumeSection } from './HWVolumeSection';
-export { InstrumentPads } from './InstrumentPads';

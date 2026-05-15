@@ -1,20 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Midi } from '@tonejs/midi';
 import * as Tone from 'tone';
-import type { MidiData, MidiTrack, TrackMuteState, InstrumentSelections } from '../types';
-import { getDuration, detectInstruments, getTrackName } from '../services/midiParser';
+import { Midi } from '@tonejs/midi';
+import type { MidiData } from '../types';
+import { getDuration, detectInstruments } from '../services/midiParser';
 import { formatTime } from '../utils/helpers';
-import { toneService } from '../services/toneService';
-import {
-  drumKits,
-  mainInstruments,
-  bassInstruments,
-  guitarInstruments,
-  brassInstruments,
-  stringsInstruments,
-  synthInstruments,
-  organInstruments,
-} from '../services/instrumentConfigs';
 
 interface MidiPlayerState {
   midiData: MidiData | null;
@@ -32,101 +21,17 @@ interface MidiPlayerState {
   error: string | null;
 }
 
-type ToneInstrument = Tone.Sampler | Tone.PolySynth | Tone.MembraneSynth;
-
-interface InstrumentMap {
-  [channel: number]: ToneInstrument | null;
+interface InstrumentSet {
+  drums: Tone.Sampler | Tone.PolySynth;
+  main: Tone.PolySynth;
+  bass: Tone.MembraneSynth;
+  guitar: Tone.PolySynth;
+  brass: Tone.PolySynth;
+  strings: Tone.PolySynth;
+  synth: Tone.PolySynth;
 }
 
-let activeInstruments: ToneInstrument[] = [];
-
-function disposeInstruments() {
-  activeInstruments.forEach((inst) => {
-    try {
-      inst.dispose();
-    } catch {
-      // ignore
-    }
-  });
-  activeInstruments = [];
-}
-
-function createSampler(
-  config: { urls: Record<string, string>; baseUrl: string } | null,
-  fallbackType: 'triangle' | 'sawtooth' | 'square'
-): ToneInstrument {
-  if (config) {
-    const sampler = new Tone.Sampler({
-      urls: config.urls,
-      baseUrl: config.baseUrl,
-    }).toDestination();
-    activeInstruments.push(sampler);
-    return sampler;
-  }
-
-  const synth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: fallbackType },
-    envelope: {
-      attack: 0.005,
-      decay: 0.3,
-      sustain: 0.1,
-      release: 0.5,
-    },
-  }).toDestination();
-  activeInstruments.push(synth);
-  return synth;
-}
-
-function buildInstrumentMap(
-  tracks: MidiTrack[],
-  selections: InstrumentSelections
-): InstrumentMap {
-  const map: InstrumentMap = {};
-
-  for (const track of tracks) {
-    if (track.muted) {
-      map[track.channel] = null;
-      continue;
-    }
-
-    if (track.channel === 9) {
-      const config = drumKits[selections.drumKit] || drumKits.acoustic;
-      map[9] = new Tone.Sampler({
-        urls: config.urls,
-        baseUrl: config.baseUrl,
-      }).toDestination();
-      activeInstruments.push(map[9] as ToneInstrument);
-      continue;
-    }
-
-    const prog = track.program ?? 0;
-
-    if (prog >= 16 && prog <= 23) {
-      const config = organInstruments[selections.organ] || organInstruments.church;
-      map[track.channel] = createSampler(config, 'triangle');
-    } else if (prog >= 24 && prog <= 31) {
-      const config = guitarInstruments[selections.guitar] || guitarInstruments.nylon;
-      map[track.channel] = createSampler(config, 'sawtooth');
-    } else if (prog >= 32 && prog <= 39) {
-      const config = bassInstruments[selections.bass] || bassInstruments.finger;
-      map[track.channel] = createSampler(config, 'square');
-    } else if (prog >= 40 && prog <= 55) {
-      const config = stringsInstruments[selections.strings] || stringsInstruments.strings;
-      map[track.channel] = createSampler(config, 'sawtooth');
-    } else if (prog >= 56 && prog <= 63) {
-      const config = brassInstruments[selections.brass] || brassInstruments.trumpet;
-      map[track.channel] = createSampler(config, 'square');
-    } else if (prog >= 80 && prog <= 95) {
-      const config = synthInstruments[selections.synth] || synthInstruments.lead;
-      map[track.channel] = createSampler(config, 'square');
-    } else {
-      const config = mainInstruments[selections.mainInstrument] || mainInstruments.casio;
-      map[track.channel] = createSampler(config, 'triangle');
-    }
-  }
-
-  return map;
-}
+let activeInstruments: (Tone.Sampler | Tone.PolySynth | Tone.MembraneSynth | null)[] = [];
 
 export function useMidiPlayer() {
   const [state, setState] = useState<MidiPlayerState>({
@@ -145,199 +50,42 @@ export function useMidiPlayer() {
     error: null,
   });
 
-  const selectionsRef = useRef<InstrumentSelections>({
-    drumKit: 'acoustic',
-    mainInstrument: 'casio',
-    bass: 'finger',
-    guitar: 'nylon',
-    brass: 'trumpet',
-    strings: 'strings',
-    synth: 'lead',
-    organ: 'church',
-  });
-
-  const muteRef = useRef<TrackMuteState>({});
+  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
-  const animFrameRef = useRef<number>(0);
-  const isScheduledRef = useRef(false);
+  const pauseRef = useRef<() => void>(() => {});
+  const instrumentSetRef = useRef<InstrumentSet | null>(null);
+  const isPlayingRef = useRef(false);
 
   useEffect(() => {
     return () => {
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
+      isPlayingRef.current = false;
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+        progressInterval.current = null;
       }
+
       Tone.Transport.stop();
       Tone.Transport.cancel();
-      disposeInstruments();
+
+      activeInstruments.forEach((inst) => {
+        if (inst) {
+          try { inst.dispose(); } catch { /* ignore */ }
+        }
+      });
+      activeInstruments = [];
+      instrumentSetRef.current = null;
     };
   }, []);
 
-  const updateProgress = useCallback(() => {
-    const elapsed = Tone.Transport.seconds;
-    const dur = durationRef.current;
-    const progress = dur > 0 ? Math.min((elapsed / dur) * 100, 100) : 0;
-
-    setState((prev) => ({
-      ...prev,
-      currentTime: elapsed,
-      progress,
-    }));
-
-    if (elapsed >= dur && dur > 0) {
-      Tone.Transport.stop();
-      Tone.Transport.cancel();
-      isScheduledRef.current = false;
-      setState((prev) => ({
-        ...prev,
-        status: 'ready',
-        isPlaying: false,
-        isPaused: false,
-        currentTime: 0,
-        progress: 0,
-      }));
-      return;
-    }
-
-    animFrameRef.current = requestAnimationFrame(updateProgress);
-  }, []);
-
-  const loadFile = useCallback(async (file: File) => {
-    setState((prev) => ({ ...prev, status: 'loading', error: null }));
-
-    Tone.Transport.stop();
-    Tone.Transport.cancel();
-    isScheduledRef.current = false;
-    disposeInstruments();
-
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const midi = new Midi(arrayBuffer);
-
-      const midiData: MidiData = {
-        name: midi.name || file.name,
-        bpm: midi.header.tempos.length > 0 ? midi.header.tempos[0].bpm : 120,
-        timeSignature: midi.header.timeSignatures.length > 0
-          ? midi.header.timeSignatures[0].timeSignature
-          : [4, 4],
-        tracks: midi.tracks.map((track, index) => ({
-          channel: track.channel,
-          program: (track as { program?: number }).program,
-          name: getTrackName(
-            { channel: track.channel, program: (track as { program?: number }).program },
-            index
-          ),
-          notes: track.notes.map((note) => ({
-            name: note.name,
-            midi: note.midi,
-            time: note.time,
-            duration: note.duration,
-            velocity: note.velocity,
-          })),
-          muted: false,
-        })),
-      };
-
-      const duration = getDuration(midiData);
-      const detectedInstruments = detectInstruments(midiData);
-
-      durationRef.current = duration;
-
-      Tone.Transport.bpm.value = midiData.bpm;
-
-      setState((prev) => ({
-        ...prev,
-        midiData,
-        fileName: file.name,
-        duration,
-        detectedInstruments,
-        status: 'ready',
-        progress: 0,
-        currentTime: 0,
-      }));
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        status: 'error',
-        error: err instanceof Error ? err.message : 'Failed to load MIDI file',
-      }));
-    }
-  }, []);
-
-  const scheduleNotes = useCallback(
-    (midiData: MidiData, startTime: number) => {
-      const selections = selectionsRef.current;
-      const instrumentMap = buildInstrumentMap(midiData.tracks, selections);
-
-      for (let i = 0; i < midiData.tracks.length; i++) {
-        const track = midiData.tracks[i];
-        const isMuted = muteRef.current[i] ?? false;
-
-        if (isMuted || track.notes.length === 0) continue;
-
-        const instrument = instrumentMap[track.channel];
-        if (!instrument) continue;
-
-        for (const note of track.notes) {
-          if (note.time + note.duration <= startTime) continue;
-
-          const scheduledTime = note.time - startTime;
-
-          Tone.Transport.schedule((time) => {
-            if (instrument instanceof Tone.Sampler) {
-              instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
-            } else if (instrument instanceof Tone.PolySynth || instrument instanceof Tone.MembraneSynth) {
-              instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
-            }
-          }, scheduledTime);
-        }
-      }
-    },
-    []
-  );
-
-  const play = useCallback(async () => {
-    if (!state.midiData || !state.midiData.tracks.length) return;
-
-    await toneService.start();
-
-    if (state.isPaused) {
-      const pausedAt = state.currentTime;
-      Tone.Transport.position = pausedAt;
-      isScheduledRef.current = false;
-    } else {
-      Tone.Transport.stop();
-      Tone.Transport.cancel();
-      Tone.Transport.position = 0;
-      isScheduledRef.current = false;
-    }
-
-    if (!isScheduledRef.current) {
-      const startPos = state.isPaused ? state.currentTime : 0;
-      scheduleNotes(state.midiData, startPos);
-      isScheduledRef.current = true;
-    }
-
-    Tone.Transport.start();
-
-    setState((prev) => ({
-      ...prev,
-      status: 'playing',
-      isPlaying: true,
-      isPaused: false,
-    }));
-
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-    }
-    animFrameRef.current = requestAnimationFrame(updateProgress);
-  }, [state.midiData, state.isPaused, state.currentTime, scheduleNotes, updateProgress]);
-
   const pause = useCallback(() => {
-    Tone.Transport.pause();
-
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
+    isPlayingRef.current = false;
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
     }
+
+    Tone.Transport.pause();
 
     setState((prev) => ({
       ...prev,
@@ -347,15 +95,156 @@ export function useMidiPlayer() {
     }));
   }, []);
 
-  const stop = useCallback(() => {
+  pauseRef.current = pause;
+
+  const loadFile = useCallback(async (file: File) => {
+    if (isPlayingRef.current) {
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      isPlayingRef.current = false;
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+        progressInterval.current = null;
+      }
+    }
+
+    setState((prev) => ({ ...prev, status: 'loading', error: null }));
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const midi = new Midi(arrayBuffer);
+
+      const midiData: MidiData = {
+        tracks: midi.tracks.map((track) => ({
+          channel: track.channel,
+          program: (track as { program?: number }).program,
+          notes: track.notes.map((note) => ({
+            name: note.name,
+            time: note.time,
+            duration: note.duration,
+            velocity: note.velocity,
+          })),
+        })),
+      };
+
+      const duration = getDuration(midiData);
+      const detectedInstruments = detectInstruments(midiData);
+
+      durationRef.current = duration;
+
+      setState({
+        midiData,
+        fileName: file.name,
+        duration,
+        detectedInstruments,
+        status: 'ready',
+        progress: 0,
+        currentTime: 0,
+        isPlaying: false,
+        isPaused: false,
+        error: null,
+      });
+    } catch (err) {
+      setState((prev) => ({
+        ...prev,
+        status: 'error',
+        error: err instanceof Error ? err.message : 'Failed to load MIDI file',
+      }));
+    }
+  }, []);
+
+  const play = useCallback(async () => {
+    if (!state.midiData || !state.midiData.tracks.length) return;
+
+    await Tone.start();
+
     Tone.Transport.stop();
     Tone.Transport.cancel();
-    isScheduledRef.current = false;
-    disposeInstruments();
+    Tone.Transport.position = 0;
 
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
+    activeInstruments.forEach((inst) => {
+      if (inst) {
+        try { inst.dispose(); } catch { /* ignore */ }
+      }
+    });
+    activeInstruments = [];
+
+    const instruments = createInstruments();
+    instrumentSetRef.current = instruments;
+
+    activeInstruments = [
+      instruments.drums,
+      instruments.main,
+      instruments.bass,
+      instruments.guitar,
+      instruments.brass,
+      instruments.strings,
+      instruments.synth,
+    ];
+
+    await Tone.loaded();
+
+    setState((prev) => ({
+      ...prev,
+      status: 'playing',
+      isPlaying: true,
+      isPaused: false,
+    }));
+
+    isPlayingRef.current = true;
+    startTimeRef.current = Date.now();
+
+    const midiData = state.midiData;
+
+    for (const track of midiData.tracks) {
+      for (const note of track.notes) {
+        Tone.Transport.schedule((time) => {
+          if (!isPlayingRef.current || !instrumentSetRef.current) return;
+          const instrument = getInstrumentForTrack(track, instrumentSetRef.current);
+          if (instrument) {
+            instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+          }
+        }, note.time);
+      }
     }
+
+    Tone.Transport.start();
+
+    progressInterval.current = setInterval(() => {
+      const elapsed = (Date.now() - startTimeRef.current) / 1000;
+      const dur = durationRef.current;
+      const progress = dur > 0 ? Math.min((elapsed / dur) * 100, 100) : 0;
+
+      setState((prev) => ({
+        ...prev,
+        currentTime: elapsed,
+        progress,
+      }));
+
+      if (dur > 0 && elapsed >= dur) {
+        pauseRef.current();
+      }
+    }, 50);
+  }, [state.midiData]);
+
+  const stop = useCallback(() => {
+    isPlayingRef.current = false;
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+
+    Tone.Transport.stop();
+    Tone.Transport.cancel();
+    Tone.Transport.position = 0;
+
+    activeInstruments.forEach((inst) => {
+      if (inst) {
+        try { inst.dispose(); } catch { /* ignore */ }
+      }
+    });
+    activeInstruments = [];
+    instrumentSetRef.current = null;
 
     setState((prev) => ({
       ...prev,
@@ -367,34 +256,78 @@ export function useMidiPlayer() {
     }));
   }, []);
 
-  const setTrackMute = useCallback((trackIndex: number, muted: boolean) => {
-    muteRef.current = { ...muteRef.current, [trackIndex]: muted };
-
-    setState((prev) => {
-      if (!prev.midiData) return prev;
-      const newTracks = prev.midiData.tracks.map((t, i) =>
-        i === trackIndex ? { ...t, muted } : t
-      );
-      return {
-        ...prev,
-        midiData: { ...prev.midiData, tracks: newTracks },
-      };
-    });
-  }, []);
-
-  const setInstrumentSelections = useCallback((selections: Partial<InstrumentSelections>) => {
-    selectionsRef.current = { ...selectionsRef.current, ...selections };
-  }, []);
-
   return {
     ...state,
     loadFile,
     play,
     pause,
     stop,
-    setTrackMute,
-    setInstrumentSelections,
     formattedTime: formatTime(state.currentTime),
     formattedDuration: formatTime(state.duration),
   };
+}
+
+function createInstruments(): InstrumentSet {
+  return {
+    drums: new Tone.Sampler({
+      urls: {
+        C1: 'kick.mp3',
+        D1: 'snare.mp3',
+        'F#1': 'hihat.mp3',
+        G1: 'tom1.mp3',
+        A1: 'tom2.mp3',
+        B1: 'tom3.mp3',
+      },
+      baseUrl: 'https://tonejs.github.io/audio/drum-samples/acoustic-kit/',
+    }).toDestination(),
+    main: new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'triangle' },
+      envelope: { attack: 0.005, decay: 0.3, sustain: 0.1, release: 0.5 },
+    }).toDestination(),
+    bass: new Tone.MembraneSynth({
+      pitchDecay: 0.05,
+      octaves: 6,
+      oscillator: { type: 'sine' },
+      envelope: { attack: 0.001, decay: 0.3, sustain: 0.01, release: 0.3 },
+    }).toDestination(),
+    guitar: new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'sawtooth' },
+      envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.3 },
+    }).toDestination(),
+    brass: new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'square' },
+      envelope: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2 },
+    }).toDestination(),
+    strings: new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'sawtooth' },
+      envelope: { attack: 0.3, decay: 0.2, sustain: 0.5, release: 0.8 },
+    }).toDestination(),
+    synth: new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'square' },
+      envelope: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2 },
+    }).toDestination(),
+  };
+}
+
+function getInstrumentForTrack(
+  track: { channel: number; program?: number },
+  instrumentSet: InstrumentSet
+): Tone.Sampler | Tone.PolySynth | Tone.MembraneSynth {
+  if (track.channel === 9) return instrumentSet.drums;
+
+  if (track.program !== undefined) {
+    const prog = track.program;
+    if (prog <= 7) return instrumentSet.main;
+    if (prog >= 8 && prog <= 15) return instrumentSet.main;
+    if (prog >= 16 && prog <= 23) return instrumentSet.main;
+    if (prog >= 24 && prog <= 31) return instrumentSet.guitar;
+    if (prog >= 32 && prog <= 39) return instrumentSet.bass;
+    if (prog >= 40 && prog <= 55) return instrumentSet.strings;
+    if (prog >= 56 && prog <= 63) return instrumentSet.brass;
+    if (prog >= 64 && prog <= 71) return instrumentSet.main;
+    if (prog >= 72 && prog <= 79) return instrumentSet.main;
+    if (prog >= 80) return instrumentSet.synth;
+  }
+
+  return instrumentSet.main;
 }

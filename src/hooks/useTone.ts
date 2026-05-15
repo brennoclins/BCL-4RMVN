@@ -17,7 +17,7 @@ export function useTone() {
   }, [isReady]);
 
   const stop = useCallback(() => {
-    toneService.stop();
+    toneService.stopAll();
   }, []);
 
   const setTempo = useCallback((bpm: number) => {

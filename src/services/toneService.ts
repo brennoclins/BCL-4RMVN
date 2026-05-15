@@ -1,40 +1,84 @@
-import * as Tone from 'tone';
+import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '../types';
+import {
+  drumKits,
+  mainInstruments,
+  bassInstruments,
+  guitarInstruments,
+  brassInstruments,
+} from './instrumentConfigs';
 
-let toneStarted = false;
+export interface ToneInstance {
+  start: () => Promise<void>;
+  Transport: typeof import('tone').Transport;
+  now: () => number;
+  Synth: typeof import('tone').Synth;
+  PolySynth: typeof import('tone').PolySynth;
+  Sampler: typeof import('tone').Sampler;
+  MembraneSynth: typeof import('tone').MembraneSynth;
+}
+
+let instance: ToneInstance | null = null;
+
+async function loadTone(): Promise<ToneInstance> {
+  const Tone = await import('tone');
+  return {
+    start: () => Tone.start(),
+    Transport: Tone.Transport,
+    now: () => Tone.now(),
+    Synth: Tone.Synth,
+    PolySynth: Tone.PolySynth,
+    Sampler: Tone.Sampler,
+    MembraneSynth: Tone.MembraneSynth,
+  };
+}
 
 export const toneService = {
+  async init(): Promise<ToneInstance> {
+    if (!instance) {
+      instance = await loadTone();
+    }
+    return instance;
+  },
+
+  get(): ToneInstance | null {
+    return instance;
+  },
+
   async start(): Promise<void> {
-    if (!toneStarted) {
-      await Tone.start();
-      toneStarted = true;
+    const t = await this.init();
+    await t.start();
+  },
+
+  stopAll(): void {
+    if (instance) {
+      instance.Transport.stop();
+      instance.Transport.cancel();
     }
   },
 
-  get contextStarted(): boolean {
-    return toneStarted;
-  },
-
-  get transport() {
-    return Tone.Transport;
-  },
-
-  get now() {
-    return Tone.now();
-  },
-
   setTempo(bpm: number): void {
-    Tone.Transport.bpm.value = bpm;
-  },
-
-  getTempo(): number {
-    return Tone.Transport.bpm.value;
-  },
-
-  stop(): void {
-    Tone.Transport.stop();
-    Tone.Transport.cancel();
-    Tone.Transport.position = 0;
+    if (instance) {
+      instance.Transport.bpm.value = bpm;
+    }
   },
 };
 
-export { Tone };
+export function getInstrumentConfig(
+  type: 'drums' | 'main' | 'bass' | 'guitar' | 'brass',
+  variant: string
+): { urls: Record<string, string>; baseUrl: string } | null {
+  switch (type) {
+    case 'drums':
+      return drumKits[variant as DrumKitType] || null;
+    case 'main':
+      return mainInstruments[variant as MainInstrumentType] || null;
+    case 'bass':
+      return bassInstruments[variant as BassType] || null;
+    case 'guitar':
+      return guitarInstruments[variant as GuitarType] || null;
+    case 'brass':
+      return brassInstruments[variant as BrassType] || null;
+    default:
+      return null;
+  }
+}
