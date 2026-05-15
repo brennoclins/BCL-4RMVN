@@ -28,6 +28,7 @@ export function AudioPlayerPage() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressIntervalRef = useRef<number | null>(null);
+  const objectUrlsRef = useRef<Set<string>>(new Set());
 
   const currentTrack = currentIndex >= 0 ? tracks[currentIndex] : null;
 
@@ -46,6 +47,7 @@ export function AudioPlayerPage() {
       const ext = '.' + file.name.split('.').pop()?.toLowerCase();
       if (validExtensions.includes(ext)) {
         const url = URL.createObjectURL(file);
+        objectUrlsRef.current.add(url);
         const isMidiFile = ext === '.mid' || ext === '.midi';
         const baseName = file.name.replace(/\.[^/.]+$/, '');
         newTracks.push({
@@ -60,7 +62,7 @@ export function AudioPlayerPage() {
 
     const updatedTracks = [...tracks, ...newTracks];
     setTracks(updatedTracks);
-    
+
     if (currentIndex === -1 && newTracks.length > 0) {
       selectTrack(0, updatedTracks);
     }
@@ -70,6 +72,11 @@ export function AudioPlayerPage() {
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
+    }
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
 
     setCurrentIndex(index);
@@ -114,6 +121,9 @@ export function AudioPlayerPage() {
     if (!audioRef.current) {
       audioRef.current = new Audio();
       audioRef.current.src = currentTrack.url;
+    } else if (audioRef.current.src !== currentTrack.url) {
+      audioRef.current.pause();
+      audioRef.current.src = currentTrack.url;
     }
 
     playAudio();
@@ -148,7 +158,7 @@ export function AudioPlayerPage() {
   const nextTrack = useCallback(() => {
     if (tracks.length > 0) {
       const nextIndex = currentIndex + 1;
-      
+
       if (nextIndex >= tracks.length) {
         if (isLooping) {
           selectTrack(0);
@@ -188,35 +198,54 @@ export function AudioPlayerPage() {
     }
   }, []);
 
+  const nextTrackRef = useRef(nextTrack);
+  nextTrackRef.current = nextTrack;
+
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
     }
 
     const audio = audioRef.current;
+    const urlsToRevoke = objectUrlsRef.current;
 
-    audio.addEventListener('loadedmetadata', () => {
+    const handleMetadata = () => {
       setTotalTime(formatTime(audio.duration));
-    });
+    };
 
-    audio.addEventListener('timeupdate', () => {
+    const handleTimeUpdate = () => {
       if (audio.duration) {
         const percent = (audio.currentTime / audio.duration) * 100;
         setProgress(percent);
         setCurrentTime(formatTime(audio.currentTime));
       }
-    });
+    };
 
-    audio.addEventListener('ended', () => {
-      nextTrack();
-    });
+    const handleEnded = () => {
+      nextTrackRef.current();
+    };
+
+    audio.addEventListener('loadedmetadata', handleMetadata);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener('loadedmetadata', () => {});
-      audio.removeEventListener('timeupdate', () => {});
-      audio.removeEventListener('ended', () => {});
+      audio.pause();
+      audio.src = '';
+      audio.removeEventListener('loadedmetadata', handleMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+
+      urlsToRevoke.forEach((url) => URL.revokeObjectURL(url));
+      urlsToRevoke.clear();
     };
-  }, [nextTrack]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

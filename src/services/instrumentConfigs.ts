@@ -154,29 +154,29 @@ export const bassInstruments: Record<BassType, InstrumentConfig> = {
   finger: {
     name: 'Finger',
     urls: {
-      C1: 'C1.mp3',
       A1: 'A1.mp3',
-      C2: 'C2.mp3',
+      A2: 'A2.mp3',
+      E2: 'E2.mp3',
     },
-    baseUrl: 'https://tonejs.github.io/audio/salamander/',
+    baseUrl: 'https://tonejs.github.io/audio/bass/',
   },
   pick: {
     name: 'Pick',
     urls: {
-      C1: 'C1.mp3',
       A1: 'A1.mp3',
-      C2: 'C2.mp3',
+      A2: 'A2.mp3',
+      E2: 'E2.mp3',
     },
-    baseUrl: 'https://tonejs.github.io/audio/salamander/',
+    baseUrl: 'https://tonejs.github.io/audio/bass/',
   },
   slap: {
     name: 'Slap',
     urls: {
-      C1: 'C1.mp3',
       A1: 'A1.mp3',
-      C2: 'C2.mp3',
+      A2: 'A2.mp3',
+      E2: 'E2.mp3',
     },
-    baseUrl: 'https://tonejs.github.io/audio/salamander/',
+    baseUrl: 'https://tonejs.github.io/audio/bass/',
   },
 };
 

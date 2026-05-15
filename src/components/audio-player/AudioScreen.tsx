@@ -30,7 +30,7 @@ export function AudioScreen({ trackName, artistName, isPlaying }: AudioScreenPro
   }, [isPlaying]);
 
   return (
-    <section className="max-w-lg min-w-lg bg-[#0a0a0a] rounded-xl !p-6 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-[#2a2a2a] font-mono min-h-45 flex flex-col justify-between">
+    <section className="max-w-lg w-full bg-[#0a0a0a] rounded-xl p-6! shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] border-[3px] border-[#2a2a2a] font-mono min-h-45 flex flex-col justify-between">
       <div>
         <div className="text-[#008822] text-[0.8rem] uppercase" id="artistName">{artistName}</div>
         <div className="text-accent-screen text-[1.4rem] uppercase truncate" id="trackName">

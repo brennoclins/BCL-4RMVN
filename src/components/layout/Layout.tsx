@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
 export function Layout() {
   return (
@@ -25,9 +24,9 @@ function Nav() {
         BCL-4RMVN<span className="text-[var(--color-hw-orange)]">.</span>
       </Link>
       <ul className="flex gap-8 uppercase font-bold text-[0.85rem] text-[var(--color-text-mid)]">
-        <li><a href="/#features" className="hover:text-[var(--color-hw-orange)] transition-colors no-underline">Features</a></li>
-        <li><a href="/midi-player" className="hover:text-[var(--color-hw-orange)] transition-colors no-underline">MIDI Player</a></li>
-        <li><a href="/audio-player" className="hover:text-[var(--color-hw-orange)] transition-colors no-underline">Audio Player</a></li>
+        <li><Link to="/#features" className="hover:text-[var(--color-hw-orange)] transition-colors no-underline">Features</Link></li>
+        <li><Link to="/midi-player" className="hover:text-[var(--color-hw-orange)] transition-colors no-underline">MIDI Player</Link></li>
+        <li><Link to="/audio-player" className="hover:text-[var(--color-hw-orange)] transition-colors no-underline">Audio Player</Link></li>
       </ul>
     </nav>
   );
@@ -52,8 +51,8 @@ function Footer() {
               Produtos
             </h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="/midi-player" className="hover:text-white transition-colors">KEYFORGE MIDI</a></li>
-              <li><a href="/audio-player" className="hover:text-white transition-colors">501BCLST</a></li>
+              <li><Link to="/midi-player" className="hover:text-white transition-colors">KEYFORGE MIDI</Link></li>
+              <li><Link to="/audio-player" className="hover:text-white transition-colors">501BCLST</Link></li>
               <li><span className="text-gray-600">VST Plugins (Em breve)</span></li>
             </ul>
           </div>

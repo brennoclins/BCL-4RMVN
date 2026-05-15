@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Midi } from '@tonejs/midi';
 import type { MidiData } from '../types';
 import { getDuration, detectInstruments } from '../services/midiParser';
@@ -40,7 +40,24 @@ export function useMidiPlayer() {
 
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
+  const durationRef = useRef<number>(0);
   const pauseRef = useRef<() => void>(() => {});
+  const instrumentSetRef = useRef<InstrumentSet | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+        progressInterval.current = null;
+      }
+
+      const tone = toneService.get();
+      if (tone) {
+        tone.Transport.stop();
+        tone.Transport.cancel();
+      }
+    };
+  }, []);
 
   const pause = useCallback(() => {
     if (progressInterval.current) {
@@ -88,6 +105,8 @@ export function useMidiPlayer() {
       const duration = getDuration(midiData);
       const detectedInstruments = detectInstruments(midiData);
 
+      durationRef.current = duration;
+
       setState((prev) => ({
         ...prev,
         midiData,
@@ -121,14 +140,14 @@ export function useMidiPlayer() {
     }));
 
     const tone = await toneService.init();
-    const instrumentSet = createInstruments(tone, 'acoustic', 'casio');
+    instrumentSetRef.current = createInstruments(tone, 'acoustic', 'casio');
 
     startTimeRef.current = Date.now();
 
     for (const track of state.midiData.tracks) {
       for (const note of track.notes) {
         tone.Transport.schedule((time) => {
-          const instrument = getInstrumentForTrack(track, instrumentSet);
+          const instrument = getInstrumentForTrack(track, instrumentSetRef.current!);
           if (instrument && typeof instrument.triggerAttackRelease === 'function') {
             instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
           }
@@ -140,7 +159,7 @@ export function useMidiPlayer() {
 
     progressInterval.current = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      const progress = Math.min((elapsed / state.duration) * 100, 100);
+      const progress = Math.min((elapsed / durationRef.current) * 100, 100);
 
       setState((prev) => ({
         ...prev,
@@ -148,11 +167,11 @@ export function useMidiPlayer() {
         progress,
       }));
 
-      if (elapsed >= state.duration) {
+      if (elapsed >= durationRef.current) {
         pauseRef.current();
       }
     }, 50);
-  }, [state.midiData, state.duration]);
+  }, [state.midiData]);
 
   const stop = useCallback(() => {
     if (progressInterval.current) {
@@ -183,17 +202,16 @@ export function useMidiPlayer() {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Instrument = any;
+type ToneInstrument = import('tone').PolySynth | import('tone').Sampler | import('tone').MembraneSynth;
 
 interface InstrumentSet {
-  drums: Instrument;
-  main: Instrument;
-  bass: Instrument;
-  guitar: Instrument;
-  brass: Instrument;
-  strings: Instrument;
-  synth: Instrument;
+  drums: ToneInstrument | null;
+  main: ToneInstrument;
+  bass: ToneInstrument;
+  guitar: ToneInstrument;
+  brass: ToneInstrument;
+  strings: ToneInstrument;
+  synth: ToneInstrument;
 }
 
 function createInstruments(
@@ -258,17 +276,17 @@ function createInstruments(
 function getInstrumentForTrack(
   track: { channel: number; program?: number },
   instrumentSet: InstrumentSet
-): Instrument {
-  if (track.channel === 9) return instrumentSet.drums;
+): ToneInstrument {
+  if (track.channel === 9) return instrumentSet.drums ?? instrumentSet.main;
 
   if (track.program !== undefined) {
     const prog = track.program;
     if (prog <= 7) return instrumentSet.main;
-    if (prog >= 24 && prog <= 31) return instrumentSet.guitar || instrumentSet.main;
-    if (prog >= 32 && prog <= 39) return instrumentSet.bass || instrumentSet.main;
-    if (prog >= 40 && prog <= 55) return instrumentSet.strings || instrumentSet.main;
-    if (prog >= 56 && prog <= 63) return instrumentSet.brass || instrumentSet.main;
-    if (prog >= 80) return instrumentSet.synth || instrumentSet.main;
+    if (prog >= 24 && prog <= 31) return instrumentSet.guitar ?? instrumentSet.main;
+    if (prog >= 32 && prog <= 39) return instrumentSet.bass ?? instrumentSet.main;
+    if (prog >= 40 && prog <= 55) return instrumentSet.strings ?? instrumentSet.main;
+    if (prog >= 56 && prog <= 63) return instrumentSet.brass ?? instrumentSet.main;
+    if (prog >= 80) return instrumentSet.synth ?? instrumentSet.main;
   }
 
   return instrumentSet.main;

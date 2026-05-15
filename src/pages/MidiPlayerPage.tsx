@@ -47,8 +47,11 @@ export function MidiPlayerPage() {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, play, pause]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      stop();
+    };
+  }, [isPlaying, play, pause, stop]);
 
   const handlePlayPause = async () => {
     if (isPlaying) {

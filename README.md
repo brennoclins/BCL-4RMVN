@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# Keyforce
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Professional MIDI and audio player built with React, TypeScript, and Tone.js.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **MIDI Player** — Multitimbral engine with real instrument samples (piano, bass, drums, guitar, brass)
+- **Audio Player** — High-fidelity audio playback with transport controls
+- **Hardware-inspired UI** — Retro hardware aesthetic with responsive design
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** + **TypeScript**
+- **Vite** — Build tool and dev server
+- **Tone.js** — Web Audio framework for synthesis and scheduling
+- **@tonejs/midi** — MIDI file parsing
+- **Tailwind CSS v4** — Utility-first styling
+- **Vitest** — Unit testing
+- **Playwright** — E2E testing
+- **Biome + ESLint** — Linting and formatting
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# Install dependencies
+pnpm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Start dev server
+pnpm dev
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Build for production
+pnpm build
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Preview production build
+pnpm preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start dev server on port 5173 |
+| `pnpm build` | Type check and build for production |
+| `pnpm preview` | Preview production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm lint:fix` | Fix issues with Biome |
+| `pnpm format` | Format code with Biome |
+| `pnpm test` | Run unit tests with Vitest |
+| `pnpm test:ui` | Run tests with Vitest UI |
+| `pnpm test:e2e` | Run E2E tests with Playwright |
+| `pnpm test:e2e:ui` | Run E2E tests with Playwright UI |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Project Structure
+
 ```
+src/
+├── components/
+│   ├── audio-player/   # Audio player UI components
+│   ├── layout/         # App layout (nav, footer, etc.)
+│   ├── midi-player/    # MIDI player UI components
+│   └── ui/             # Shared UI primitives
+├── hooks/              # Custom React hooks
+│   ├── useAudioPlayer.ts
+│   ├── useMidiPlayer.ts
+│   └── useTone.ts
+├── pages/              # Route pages
+├── services/           # Business logic (Tone.js, MIDI parser)
+├── styles/             # Global CSS
+├── types/              # TypeScript type definitions
+└── utils/              # Utility functions
+```
+
+## License
+
+Private — All rights reserved.

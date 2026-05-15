@@ -12,10 +12,11 @@ export function HWTransport({
   disabled = false,
 }: HWTransportProps) {
   return (
-    <div className="flex justify-center items-center gap-2 pt-4 border-t border-black/10">
+    <div className="flex justify-center items-center gap-2 pt-4 border-t border-black/10" role="toolbar" aria-label="Playback controls">
       <button
         onClick={onStop}
         disabled={disabled}
+        aria-label="Stop playback"
         className="p-3 bg-gradient-to-b from-white to-[#e0e0e0] border border-black/10 rounded shadow-[0_2px_3px_rgba(0,0,0,0.1)] disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:border-[var(--color-text-mid)]"
       >
         <svg
@@ -23,6 +24,7 @@ export function HWTransport({
           viewBox="0 0 24 24"
           fill="currentColor"
           className="w-[18px] h-[18px] text-[var(--color-text-mid)]"
+          aria-hidden="true"
         >
           <rect x="6" y="6" width="12" height="12" />
         </svg>
@@ -31,6 +33,7 @@ export function HWTransport({
       <button
         onClick={onPlayPause}
         disabled={disabled}
+        aria-label={isPlaying ? 'Pause playback' : 'Start playback'}
         className={`flex items-center gap-2 p-3 rounded border border-black/10 shadow-[0_2px_3px_rgba(0,0,0,0.1)] disabled:opacity-40 disabled:cursor-not-allowed transition-all ${
           isPlaying
             ? 'bg-gradient-to-b from-[#ff6666] to-[#cc0000] text-white shadow-[0_0_15px_rgba(255,68,68,0.6)]'
@@ -43,6 +46,7 @@ export function HWTransport({
             viewBox="0 0 24 24"
             fill="currentColor"
             className="w-[18px] h-[18px] text-white"
+            aria-hidden="true"
           >
             <rect x="6" y="4" width="4" height="16" />
             <rect x="14" y="4" width="4" height="16" />
@@ -53,6 +57,7 @@ export function HWTransport({
             viewBox="0 0 24 24"
             fill="currentColor"
             className="w-[18px] h-[18px] text-[var(--color-text-dark)]"
+            aria-hidden="true"
           >
             <polygon points="5 3 19 12 5 21 5 3" />
           </svg>

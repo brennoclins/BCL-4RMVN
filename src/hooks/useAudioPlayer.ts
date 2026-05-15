@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { formatTime } from '../utils/helpers';
 
 interface AudioPlayerState {
@@ -24,6 +24,26 @@ export function useAudioPlayer() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+        progressInterval.current = null;
+      }
+
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, []);
 
   const clearProgressInterval = useCallback(() => {
     if (progressInterval.current) {
@@ -40,25 +60,45 @@ export function useAudioPlayer() {
       audioRef.current = null;
     }
 
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+    }
+
     try {
       const url = URL.createObjectURL(file);
+      objectUrlRef.current = url;
+
       const audio = new Audio(url);
       audioRef.current = audio;
 
-      audio.addEventListener('loadedmetadata', () => {
+      const handleMetadata = () => {
         setState((prev) => ({
           ...prev,
           audioData: { name: file.name, duration: audio.duration },
           duration: audio.duration,
           status: 'ready',
         }));
-      });
+      };
 
-      audio.addEventListener('error', () => {
+      const handleError = () => {
         setState((prev) => ({
           ...prev,
           status: 'error',
           error: 'Failed to load audio file',
+        }));
+      };
+
+      audio.addEventListener('loadedmetadata', handleMetadata);
+      audio.addEventListener('error', handleError);
+
+      audio.addEventListener('ended', () => {
+        clearProgressInterval();
+        setState((prev) => ({
+          ...prev,
+          status: 'ready',
+          isPlaying: false,
+          currentTime: 0,
+          progress: 0,
         }));
       });
     } catch (err) {
@@ -68,7 +108,7 @@ export function useAudioPlayer() {
         error: err instanceof Error ? err.message : 'Failed to load audio',
       }));
     }
-  }, []);
+  }, [clearProgressInterval]);
 
   const play = useCallback(async () => {
     if (!audioRef.current) return;
@@ -76,11 +116,11 @@ export function useAudioPlayer() {
     const currentPause = state.status === 'paused';
 
     try {
-      await audioRef.current.play();
-
       if (!currentPause) {
         audioRef.current.currentTime = 0;
       }
+
+      await audioRef.current.play();
 
       setState((prev) => ({
         ...prev,

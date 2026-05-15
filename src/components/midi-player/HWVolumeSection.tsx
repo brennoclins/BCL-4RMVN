@@ -9,13 +9,20 @@ export function HWVolumeSection({ progress, currentTime, onProgressClick }: HWVo
     <div
       className="flex items-center gap-4 pt-6 border-t border-black/10 col-span-3"
       style={{ gridArea: 'volume' }}
+      role="group"
+      aria-label="Playback progress"
     >
-      <span className="text-[0.7rem] uppercase text-[var(--color-text-mid)]">
+      <span className="text-[0.7rem] uppercase text-[var(--color-text-mid)]" id="progress-label">
         Progress
       </span>
 
       <div
         className="flex-1 h-[12px] bg-[#101010] rounded cursor-pointer shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] overflow-hidden relative"
+        role="progressbar"
+        aria-valuenow={Math.round(progress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-labelledby="progress-label"
         onClick={(e) => {
           if (onProgressClick) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -30,7 +37,7 @@ export function HWVolumeSection({ progress, currentTime, onProgressClick }: HWVo
         />
       </div>
 
-      <span className="text-[0.7rem] font-mono text-[var(--color-text-mid)] min-w-[60px]">
+      <span className="text-[0.7rem] font-mono text-[var(--color-text-mid)] min-w-[60px]" aria-live="polite">
         {currentTime}
       </span>
     </div>
