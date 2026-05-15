@@ -53,7 +53,7 @@ export function useMidiPlayer() {
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
-  const pauseRef = useRef<() => void>(() => {});
+  const midiDataRef = useRef<MidiData | null>(null);
   const instrumentSetRef = useRef<InstrumentSet | null>(null);
   const isPlayingRef = useRef(false);
 
@@ -78,6 +78,26 @@ export function useMidiPlayer() {
     };
   }, []);
 
+  const clearPlayback = useCallback(() => {
+    isPlayingRef.current = false;
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+
+    Tone.Transport.stop();
+    Tone.Transport.cancel();
+    Tone.Transport.position = 0;
+
+    activeInstruments.forEach((inst) => {
+      if (inst) {
+        try { inst.dispose(); } catch { /* ignore */ }
+      }
+    });
+    activeInstruments = [];
+    instrumentSetRef.current = null;
+  }, []);
+
   const pause = useCallback(() => {
     isPlayingRef.current = false;
     if (progressInterval.current) {
@@ -95,18 +115,8 @@ export function useMidiPlayer() {
     }));
   }, []);
 
-  pauseRef.current = pause;
-
   const loadFile = useCallback(async (file: File) => {
-    if (isPlayingRef.current) {
-      Tone.Transport.stop();
-      Tone.Transport.cancel();
-      isPlayingRef.current = false;
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-        progressInterval.current = null;
-      }
-    }
+    clearPlayback();
 
     setState((prev) => ({ ...prev, status: 'loading', error: null }));
 
@@ -130,6 +140,7 @@ export function useMidiPlayer() {
       const duration = getDuration(midiData);
       const detectedInstruments = detectInstruments(midiData);
 
+      midiDataRef.current = midiData;
       durationRef.current = duration;
 
       setState({
@@ -151,23 +162,29 @@ export function useMidiPlayer() {
         error: err instanceof Error ? err.message : 'Failed to load MIDI file',
       }));
     }
-  }, []);
+  }, [clearPlayback]);
 
   const play = useCallback(async () => {
-    if (!state.midiData || !state.midiData.tracks.length) return;
+    const midiData = midiDataRef.current;
+    if (!midiData || !midiData.tracks.length) {
+      console.warn('useMidiPlayer.play: no midi data');
+      return;
+    }
 
-    await Tone.start();
+    try {
+      await Tone.start();
+      console.log('Tone started');
+    } catch (err) {
+      console.error('Tone.start failed:', err);
+      setState((prev) => ({
+        ...prev,
+        status: 'error',
+        error: 'Failed to start audio engine. Click anywhere and try again.',
+      }));
+      return;
+    }
 
-    Tone.Transport.stop();
-    Tone.Transport.cancel();
-    Tone.Transport.position = 0;
-
-    activeInstruments.forEach((inst) => {
-      if (inst) {
-        try { inst.dispose(); } catch { /* ignore */ }
-      }
-    });
-    activeInstruments = [];
+    clearPlayback();
 
     const instruments = createInstruments();
     instrumentSetRef.current = instruments;
@@ -182,19 +199,25 @@ export function useMidiPlayer() {
       instruments.synth,
     ];
 
-    await Tone.loaded();
+    try {
+      await Tone.loaded();
+      console.log('Tone loaded, samples ready');
+    } catch (err) {
+      console.error('Tone.loaded failed:', err);
+    }
 
     setState((prev) => ({
       ...prev,
+      midiData,
       status: 'playing',
       isPlaying: true,
       isPaused: false,
+      currentTime: 0,
+      progress: 0,
     }));
 
     isPlayingRef.current = true;
     startTimeRef.current = Date.now();
-
-    const midiData = state.midiData;
 
     for (const track of midiData.tracks) {
       for (const note of track.notes) {
@@ -209,6 +232,7 @@ export function useMidiPlayer() {
     }
 
     Tone.Transport.start();
+    console.log('Transport started, notes scheduled:', midiData.tracks.reduce((sum, t) => sum + t.notes.length, 0));
 
     progressInterval.current = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
@@ -222,29 +246,13 @@ export function useMidiPlayer() {
       }));
 
       if (dur > 0 && elapsed >= dur) {
-        pauseRef.current();
+        pause();
       }
     }, 50);
-  }, [state.midiData]);
+  }, [clearPlayback, pause]);
 
   const stop = useCallback(() => {
-    isPlayingRef.current = false;
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
-
-    Tone.Transport.stop();
-    Tone.Transport.cancel();
-    Tone.Transport.position = 0;
-
-    activeInstruments.forEach((inst) => {
-      if (inst) {
-        try { inst.dispose(); } catch { /* ignore */ }
-      }
-    });
-    activeInstruments = [];
-    instrumentSetRef.current = null;
+    clearPlayback();
 
     setState((prev) => ({
       ...prev,
@@ -254,7 +262,7 @@ export function useMidiPlayer() {
       currentTime: 0,
       progress: 0,
     }));
-  }, []);
+  }, [clearPlayback]);
 
   return {
     ...state,
