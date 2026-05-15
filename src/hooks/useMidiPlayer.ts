@@ -54,6 +54,7 @@ export function useMidiPlayer() {
   const pauseRef = useRef<() => void>(() => {});
   const volumeRef = useRef<number>(0);
   const isLoopingRef = useRef(false);
+  const isDigitalRef = useRef(false);
   const instrumentSetRef = useRef<InstrumentSet | null>(null);
 
   useEffect(() => {
@@ -163,10 +164,10 @@ export function useMidiPlayer() {
     }));
 
     const tone = await toneService.init();
-    const instrumentSet = createInstruments(tone, 'acoustic', 'casio', state.isDigital);
+    const instrumentSet = createInstruments(tone, 'acoustic', 'casio', isDigitalRef.current);
     instrumentSetRef.current = instrumentSet;
 
-    if (!state.isDigital) {
+    if (!isDigitalRef.current) {
       try {
         await Tone.loaded();
       } catch {
@@ -209,7 +210,7 @@ export function useMidiPlayer() {
         }
       }
     }, 50);
-  }, [state.isDigital]);
+  }, []);
 
   const stop = useCallback(() => {
     if (progressInterval.current) {
@@ -269,8 +270,9 @@ export function useMidiPlayer() {
     });
   }, []);
 
-  const toggleDigital = useCallback(() => {
-    setState((prev) => ({ ...prev, isDigital: !prev.isDigital }));
+  const setDigital = useCallback((isDigital: boolean) => {
+    isDigitalRef.current = isDigital;
+    setState((prev) => ({ ...prev, isDigital }));
   }, []);
 
   const seek = useCallback((progress: number) => {
@@ -291,7 +293,7 @@ export function useMidiPlayer() {
     const data = midiDataRef.current;
     if (!data) return;
 
-    const instrumentSet = createInstruments(tone, 'acoustic', 'casio', state.isDigital);
+    const instrumentSet = createInstruments(tone, 'acoustic', 'casio', isDigitalRef.current);
     instrumentSetRef.current = instrumentSet;
 
     for (const track of data.tracks) {
@@ -318,7 +320,7 @@ export function useMidiPlayer() {
       currentTime: targetTime,
       progress,
     }));
-  }, [state.isPlaying, state.isDigital]);
+  }, [state.isPlaying]);
 
   return {
     ...state,
@@ -329,7 +331,7 @@ export function useMidiPlayer() {
     setVolume,
     setBpm,
     toggleLoop,
-    toggleDigital,
+    setDigital,
     seek,
     formattedTime: formatTime(state.currentTime),
     formattedDuration: formatTime(state.duration),

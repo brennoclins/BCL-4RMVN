@@ -29,8 +29,8 @@ export function MidiPlayerPage() {
     pause,
     stop,
     setVolume,
+    setDigital,
     toggleLoop,
-    toggleDigital,
     seek,
   } = useMidiPlayer();
 
@@ -42,8 +42,8 @@ export function MidiPlayerPage() {
   const [brass, setBrass] = useState<BrassType>('trumpet');
 
   useEffect(() => {
-    toggleDigital();
-  }, [soundMode]);
+    setDigital(soundMode === 'digital');
+  }, [soundMode, setDigital]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
