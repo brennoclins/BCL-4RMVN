@@ -1,7 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout';
-import { HomePage, MidiPlayerPage, AudioPlayerPage, PrivacyPolicyPage, TermsOfUsePage, CookiesPage } from './pages';
+import { HomePage, MidiPlayerPage, AudioPlayerPage, PrivacyPolicyPage, TermsOfUsePage, CookiesPage, AboutPage } from './pages';
 import './styles/globals.css';
 
 interface ErrorBoundaryProps {
@@ -61,6 +61,7 @@ export function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-use" element={<TermsOfUsePage />} />
             <Route path="/cookies" element={<CookiesPage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

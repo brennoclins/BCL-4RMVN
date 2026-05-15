@@ -62,7 +62,7 @@ function Footer() {
               Empresa
             </h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">Sobre Nós</a></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">Sobre Nós</Link></li>
               <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Carreiras</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Contato</a></li>
