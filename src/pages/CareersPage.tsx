@@ -11,7 +11,7 @@ interface JobCardProps {
 }
 
 function JobCard({ title, type, level, description, tags, accent = 'orange', open = true }: JobCardProps) {
-  const accentColor = accent === 'orange' ? '#ff6600' : '#00ff44';
+  const accentColor = accent === 'orange' ? '#ff6600' : '#00aa33';
 
   return (
     <div className="bg-[#e0e0e0] rounded-xl border-t border-l border-white/60 border-b border-r border-black/20 overflow-hidden shadow-[4px_4px_12px_rgba(0,0,0,0.1)]">
@@ -21,7 +21,7 @@ function JobCard({ title, type, level, description, tags, accent = 'orange', ope
           <div className="w-1.5 h-1.5 rounded-full bg-black/15 shadow-inner"></div>
         </div>
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${open ? 'bg-[#00ff44] shadow-[0_0_8px_#00ff44]' : 'bg-gray-400'}`}></div>
+          <div className={`w-2 h-2 rounded-full ${open ? 'bg-[#00aa33] shadow-[0_0_8px_#00aa33]' : 'bg-gray-400'}`}></div>
           <span className="text-[9px] font-mono font-bold text-black/30 tracking-[0.2em]">
             {open ? 'HIRING' : 'CLOSED'}
           </span>
@@ -38,7 +38,7 @@ function JobCard({ title, type, level, description, tags, accent = 'orange', ope
           </div>
 
           <div className="flex gap-2 shrink-0">
-            <span className="px-2 py-1 bg-[#202020] text-[#00ff44] rounded font-mono text-[0.65rem] font-bold uppercase">
+            <span className="px-2 py-1 bg-[#202020] text-[#00aa33] rounded font-mono text-[0.65rem] font-bold uppercase">
               {type}
             </span>
             <span className="px-2 py-1 bg-[#202020] text-[#ff6600] rounded font-mono text-[0.65rem] font-bold uppercase">
@@ -121,7 +121,7 @@ export function CareersPage() {
 
           <div className="flex flex-col items-center gap-3 shrink-0">
             <div className="flex items-center gap-2 bg-black/5 px-3 py-1 rounded border border-black/5">
-              <div className="w-2 h-2 rounded-full bg-[#00ff44] shadow-[0_0_8px_#00ff44] animate-pulse"></div>
+              <div className="w-2 h-2 rounded-full bg-[#00aa33] shadow-[0_0_8px_#00aa33] animate-pulse"></div>
               <span className="text-[10px] font-mono font-bold text-[#202020]">2 VAGAS</span>
             </div>
           </div>
@@ -168,7 +168,7 @@ export function CareersPage() {
 
       <div className="mb-4">
         <h2 className="text-xl font-black uppercase tracking-tighter text-[#202020] mb-6 flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-[#00ff44] shadow-[0_0_6px_#00ff44]"></div>
+          <div className="w-2 h-2 rounded-full bg-[#00aa33] shadow-[0_0_6px_#00aa33]"></div>
           Vagas Abertas
         </h2>
       </div>

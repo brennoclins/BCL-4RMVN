@@ -8,7 +8,7 @@ interface InfoCardProps {
 }
 
 function InfoCard({ icon, title, description, accent = 'orange' }: InfoCardProps) {
-  const accentColor = accent === 'orange' ? '#ff6600' : '#00ff44';
+  const accentColor = accent === 'orange' ? '#ff6600' : '#00aa33';
 
   return (
     <div className="bg-[#e0e0e0] rounded-xl border-t border-l border-white/60 border-b border-r border-black/20 overflow-hidden shadow-[4px_4px_12px_rgba(0,0,0,0.1)]">
@@ -35,7 +35,7 @@ interface StatCardProps {
 }
 
 function StatCard({ value, label, accent = 'orange' }: StatCardProps) {
-  const accentColor = accent === 'orange' ? '#ff6600' : '#00ff44';
+  const accentColor = accent === 'orange' ? '#ff6600' : '#00aa33';
 
   return (
     <div className="bg-[#e0e0e0] rounded-xl border-t border-l border-white/60 border-b border-r border-black/20 overflow-hidden shadow-[4px_4px_12px_rgba(0,0,0,0.1)]">
@@ -149,14 +149,14 @@ export function AboutPage() {
       <div className="bg-[#e0e0e0] rounded-xl border-t border-l border-white/60 border-b border-r border-black/20 overflow-hidden shadow-[6px_6px_15px_rgba(0,0,0,0.1)] mb-8">
         <div className="p-8">
           <h2 className="text-xl font-black uppercase tracking-tighter text-[#202020] mb-4 flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-[#00ff44] shadow-[0_0_6px_#00ff44]"></div>
+            <div className="w-2 h-2 rounded-full bg-[#00aa33] shadow-[0_0_6px_#00aa33]"></div>
             Tecnologias
           </h2>
           <div className="flex flex-wrap gap-2">
             {['React 19', 'TypeScript', 'Vite', 'Tone.js', 'Tailwind CSS', 'Vitest', 'Playwright', 'Biome'].map((tech) => (
               <span
                 key={tech}
-                className="px-3 py-1.5 bg-[#202020] text-[#00ff44] rounded font-mono text-[0.75rem] font-bold uppercase tracking-wider shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
+                className="px-3 py-1.5 bg-[#202020] text-[#00aa33] rounded font-mono text-[0.75rem] font-bold uppercase tracking-wider shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
               >
                 {tech}
               </span>

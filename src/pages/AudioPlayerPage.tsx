@@ -303,7 +303,7 @@ export function AudioPlayerPage() {
               Audio Player Module / FX-900
             </p>
           </div>
-          <div className="w-[10px] h-[10px] bg-[var(--color-accent-screen)] rounded-full shadow-[0_0_8px_#00ff44] mt-2" />
+          <div className="w-[10px] h-[10px] bg-[var(--color-accent-screen)] rounded-full shadow-[0_0_8px_#00aa33] mt-2" />
         </header>
 
         <div className="flex flex-col md:flex-row gap-6 mt-6">

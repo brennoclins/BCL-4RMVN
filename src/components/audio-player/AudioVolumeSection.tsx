@@ -55,7 +55,7 @@ export function AudioVolumeSection({
         }}
       >
         <div
-          className="h-full bg-[var(--color-accent-screen)] shadow-[0_0_8px_#00ff44] transition-all duration-100"
+          className="h-full bg-[var(--color-accent-screen)] shadow-[0_0_8px_#00aa33] transition-all duration-100"
           style={{ width: `${progress}%` }}
         />
       </div>

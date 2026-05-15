@@ -8,7 +8,7 @@ interface SectionCardProps {
 }
 
 function SectionCard({ number, title, children, accent = 'orange' }: SectionCardProps) {
-  const accentColor = accent === 'orange' ? '#ff6600' : '#00ff44';
+  const accentColor = accent === 'orange' ? '#ff6600' : '#00aa33';
 
   return (
     <div className="bg-[#e0e0e0] rounded-xl border-t border-l border-white/60 border-b border-r border-black/20 overflow-hidden shadow-[4px_4px_12px_rgba(0,0,0,0.1)]">
@@ -68,7 +68,7 @@ export function PrivacyPolicyPage() {
 
           <div className="flex flex-col items-center gap-3 shrink-0">
             <div className="flex items-center gap-2 bg-black/5 px-3 py-1 rounded border border-black/5">
-              <div className="w-2 h-2 rounded-full bg-[#00ff44] shadow-[0_0_8px_#00ff44]"></div>
+              <div className="w-2 h-2 rounded-full bg-[#00aa33] shadow-[0_0_8px_#00aa33]"></div>
               <span className="text-[10px] font-mono font-bold text-[#202020]">SECURE</span>
             </div>
           </div>

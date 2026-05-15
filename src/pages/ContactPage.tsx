@@ -11,7 +11,7 @@ interface ContactMethodProps {
 }
 
 function ContactMethod({ icon, title, description, href, label, accent = 'orange' }: ContactMethodProps) {
-  const accentColor = accent === 'orange' ? '#ff6600' : '#00ff44';
+  const accentColor = accent === 'orange' ? '#ff6600' : '#00aa33';
 
   return (
     <a
@@ -136,7 +136,7 @@ export function ContactPage() {
 
           <div className="flex flex-col items-center gap-3 shrink-0">
             <div className="flex items-center gap-2 bg-black/5 px-3 py-1 rounded border border-black/5">
-              <div className="w-2 h-2 rounded-full bg-[#00ff44] shadow-[0_0_8px_#00ff44] animate-pulse"></div>
+              <div className="w-2 h-2 rounded-full bg-[#00aa33] shadow-[0_0_8px_#00aa33] animate-pulse"></div>
               <span className="text-[10px] font-mono font-bold text-[#202020]">AVAILABLE</span>
             </div>
           </div>
@@ -189,8 +189,8 @@ export function ContactPage() {
           </h2>
 
           {submitted && (
-            <div className="mb-6 p-4 bg-[#202020] text-[#00ff44] rounded-lg font-mono text-[0.85rem] flex items-center gap-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]">
-              <div className="w-2 h-2 rounded-full bg-[#00ff44] shadow-[0_0_8px_#00ff44] animate-pulse"></div>
+            <div className="mb-6 p-4 bg-[#202020] text-[#00aa33] rounded-lg font-mono text-[0.85rem] flex items-center gap-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]">
+              <div className="w-2 h-2 rounded-full bg-[#00aa33] shadow-[0_0_8px_#00aa33] animate-pulse"></div>
               Mensagem enviada com sucesso! Responderemos em breve.
             </div>
           )}

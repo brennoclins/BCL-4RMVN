@@ -8,7 +8,7 @@ interface SectionCardProps {
 }
 
 function SectionCard({ number, title, children, accent = 'orange' }: SectionCardProps) {
-  const accentColor = accent === 'orange' ? '#ff6600' : '#00ff44';
+  const accentColor = accent === 'orange' ? '#ff6600' : '#00aa33';
 
   return (
     <div className="bg-[#e0e0e0] rounded-xl border-t border-l border-white/60 border-b border-r border-black/20 overflow-hidden shadow-[4px_4px_12px_rgba(0,0,0,0.1)]">
