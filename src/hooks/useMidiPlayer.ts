@@ -142,6 +142,9 @@ export function useMidiPlayer() {
     const tone = await toneService.init();
     instrumentSetRef.current = createInstruments(tone, 'acoustic', 'casio');
 
+    tone.Transport.cancel();
+    tone.Transport.position = 0;
+
     startTimeRef.current = Date.now();
 
     for (const track of state.midiData.tracks) {
@@ -155,8 +158,6 @@ export function useMidiPlayer() {
       }
     }
 
-    tone.Transport.cancel();
-    tone.Transport.position = 0;
     tone.Transport.start();
 
     progressInterval.current = setInterval(() => {
