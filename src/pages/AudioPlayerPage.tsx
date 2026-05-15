@@ -29,6 +29,11 @@ export function AudioPlayerPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressIntervalRef = useRef<number | null>(null);
   const objectUrlsRef = useRef<Set<string>>(new Set());
+  const tracksRef = useRef<Track[]>([]);
+  const currentIndexRef = useRef<number>(-1);
+
+  tracksRef.current = tracks;
+  currentIndexRef.current = currentIndex;
 
   const currentTrack = currentIndex >= 0 ? tracks[currentIndex] : null;
 
@@ -68,7 +73,9 @@ export function AudioPlayerPage() {
     }
   };
 
-  const selectTrack = useCallback((index: number, trackList = tracks) => {
+  const selectTrack = useCallback((index: number, trackList?: Track[]) => {
+    const list = trackList || tracksRef.current;
+
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
@@ -79,12 +86,13 @@ export function AudioPlayerPage() {
       audioRef.current.currentTime = 0;
     }
 
+    currentIndexRef.current = index;
     setCurrentIndex(index);
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime('0:00');
 
-    const track = trackList[index];
+    const track = list[index];
     if (track) {
       setArtistDisplay(track.ext + ' File');
 
@@ -96,11 +104,15 @@ export function AudioPlayerPage() {
       }
       setTotalTime('0:00');
     }
-  }, [tracks]);
+  }, []);
 
   const playAudio = useCallback(() => {
-    if (!audioRef.current || !currentTrack || currentTrack.isMidi) {
-      if (currentTrack?.isMidi) {
+    const idx = currentIndexRef.current;
+    const list = tracksRef.current;
+    const track = idx >= 0 ? list[idx] : null;
+
+    if (!audioRef.current || !track || track.isMidi) {
+      if (track?.isMidi) {
         setIsPlaying(true);
         setArtistDisplay('MIDI Mode');
       }
@@ -109,35 +121,43 @@ export function AudioPlayerPage() {
 
     audioRef.current.play().then(() => {
       setIsPlaying(true);
-      setArtistDisplay(currentTrack.ext + ' Playing');
+      setArtistDisplay(track.ext + ' Playing');
     }).catch(err => {
       console.error('Playback error:', err);
     });
-  }, [currentTrack]);
+  }, []);
 
   const play = useCallback(() => {
-    if (currentIndex === -1 || !currentTrack) return;
+    const idx = currentIndexRef.current;
+    const list = tracksRef.current;
+    const track = idx >= 0 ? list[idx] : null;
+
+    if (idx === -1 || !track) return;
 
     if (!audioRef.current) {
       audioRef.current = new Audio();
-      audioRef.current.src = currentTrack.url;
-    } else if (audioRef.current.src !== currentTrack.url) {
+      audioRef.current.src = track.url;
+    } else if (audioRef.current.src !== track.url) {
       audioRef.current.pause();
-      audioRef.current.src = currentTrack.url;
+      audioRef.current.src = track.url;
     }
 
     playAudio();
-  }, [currentIndex, currentTrack, playAudio]);
+  }, [playAudio]);
 
   const pause = useCallback(() => {
-    if (currentTrack?.isMidi) {
+    const idx = currentIndexRef.current;
+    const list = tracksRef.current;
+    const track = idx >= 0 ? list[idx] : null;
+
+    if (track?.isMidi) {
       setIsPlaying(false);
     } else {
       audioRef.current?.pause();
       setIsPlaying(false);
     }
-    setArtistDisplay(currentTrack?.ext + ' File' || 'Standby Mode');
-  }, [currentTrack]);
+    setArtistDisplay(track?.ext + ' File' || 'Standby Mode');
+  }, []);
 
   const togglePlay = useCallback(() => {
     if (isPlaying) {
@@ -148,18 +168,24 @@ export function AudioPlayerPage() {
   }, [isPlaying, play, pause]);
 
   const prevTrack = useCallback(() => {
-    if (tracks.length > 0) {
-      const newIndex = currentIndex > 0 ? currentIndex - 1 : tracks.length - 1;
+    const list = tracksRef.current;
+    const idx = currentIndexRef.current;
+
+    if (list.length > 0) {
+      const newIndex = idx > 0 ? idx - 1 : list.length - 1;
       selectTrack(newIndex);
       play();
     }
-  }, [tracks.length, currentIndex, selectTrack, play]);
+  }, [selectTrack, play]);
 
   const nextTrack = useCallback(() => {
-    if (tracks.length > 0) {
-      const nextIndex = currentIndex + 1;
+    const list = tracksRef.current;
+    const idx = currentIndexRef.current;
 
-      if (nextIndex >= tracks.length) {
+    if (list.length > 0) {
+      const nextIndex = idx + 1;
+
+      if (nextIndex >= list.length) {
         if (isLooping) {
           selectTrack(0);
           play();
@@ -174,7 +200,7 @@ export function AudioPlayerPage() {
         play();
       }
     }
-  }, [tracks.length, currentIndex, isLooping, selectTrack, play]);
+  }, [isLooping, selectTrack, play]);
 
   const changeVolume = useCallback((delta: number) => {
     const newVolume = Math.max(-60, Math.min(6, volume + delta));
