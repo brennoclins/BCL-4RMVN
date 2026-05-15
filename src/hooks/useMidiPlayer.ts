@@ -155,6 +155,8 @@ export function useMidiPlayer() {
       }
     }
 
+    tone.Transport.cancel();
+    tone.Transport.position = 0;
     tone.Transport.start();
 
     progressInterval.current = setInterval(() => {
