@@ -85,7 +85,7 @@ export function CookiesPage() {
         </SectionCard>
 
         <SectionCard number="02" title="Cookies utilizados" accent="green">
-          O Keyforce <strong className="text-[#202020]">não utiliza cookies</strong> de rastreamento, analytics ou publicidade. A aplicação não armazena cookies no navegador do usuário.
+          O BCL-4RMVN <strong className="text-[#202020]">não utiliza cookies</strong> de rastreamento, analytics ou publicidade. A aplicação não armazena cookies no navegador do usuário.
         </SectionCard>
 
         <SectionCard number="03" title="Armazenamento local">

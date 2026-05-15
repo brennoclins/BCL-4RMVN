@@ -81,15 +81,15 @@ export function TermsOfUsePage() {
 
       <div className="flex flex-col gap-6 mb-8">
         <SectionCard number="01" title="Aceitação dos Termos">
-          Ao acessar e utilizar o Keyforce, você concorda com estes Termos de Uso. Se não concordar com qualquer parte, não utilize a aplicação.
+          Ao acessar e utilizar o BCL-4RMVN, você concorda com estes Termos de Uso. Se não concordar com qualquer parte, não utilize a aplicação.
         </SectionCard>
 
         <SectionCard number="02" title="Descrição do Serviço">
-          O Keyforce é um reprodutor de áudio e MIDI baseado em navegador, construído com React e Tone.js. Permite carregar e reproduzir arquivos diretamente no navegador, sem servidor.
+          O BCL-4RMVN é um reprodutor de áudio e MIDI baseado em navegador, construído com React e Tone.js. Permite carregar e reproduzir arquivos diretamente no navegador, sem servidor.
         </SectionCard>
 
         <SectionCard number="03" title="Uso Permitido">
-          <p className="mb-2">Você pode utilizar o Keyforce para uso pessoal e não comercial:</p>
+          <p className="mb-2">Você pode utilizar o BCL-4RMVN para uso pessoal e não comercial:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>Carregar e reproduzir arquivos de áudio e MIDI de sua propriedade</li>
             <li>Utilizar para fins educacionais e de aprendizado</li>

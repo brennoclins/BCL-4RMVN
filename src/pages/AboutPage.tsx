@@ -104,7 +104,7 @@ export function AboutPage() {
               remetesse à experiência tátil de hardware real.
             </p>
             <p>
-              Assim surgiu o Keyforce: um player de áudio e MIDI que roda inteiramente no
+              Assim surgiu o Keyforce: nosso player MIDI com interface de hardware real, que roda inteiramente no
               navegador, utilizando <strong className="text-[#202020]">samples reais</strong> de instrumentos e
               uma interface skeuomórfica que simula a profundidade e resposta de controladores
               físicos.

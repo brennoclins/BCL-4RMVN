@@ -81,7 +81,7 @@ export function PrivacyPolicyPage() {
 
       <div className="flex flex-col gap-6 mb-8">
         <SectionCard number="01" title="Coleta de Dados">
-          O Keyforce opera inteiramente no seu navegador. <strong className="text-[#202020]">Não coletamos, armazenamos ou transmitimos</strong> dados pessoais para servidores externos. Todos os arquivos de áudio e MIDI são processados localmente.
+          O BCL-4RMVN opera inteiramente no seu navegador. <strong className="text-[#202020]">Não coletamos, armazenamos ou transmitimos</strong> dados pessoais para servidores externos. Todos os arquivos de áudio e MIDI são processados localmente.
         </SectionCard>
 
         <SectionCard number="02" title="Arquivos Locais">
