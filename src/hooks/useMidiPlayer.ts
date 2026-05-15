@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
 import type { MidiData } from '../types';
 import { getDuration, detectInstruments } from '../services/midiParser';
@@ -129,9 +130,16 @@ export function useMidiPlayer() {
 
   const play = useCallback(async () => {
     const data = midiDataRef.current;
-    if (!data || !data.tracks.length) return;
+    if (!data || !data.tracks.length) {
+      console.error('play: no midi data');
+      return;
+    }
+
+    console.log('play: starting, tracks:', data.tracks.length, 'total notes:', data.tracks.reduce((s, t) => s + t.notes.length, 0));
 
     await toneService.start();
+    console.log('play: Tone started');
+
     toneService.stopAll();
 
     setState((prev) => ({
@@ -142,22 +150,34 @@ export function useMidiPlayer() {
     }));
 
     const tone = await toneService.init();
+    console.log('play: tone instance ready, Transport state:', tone.Transport.state);
+
     const instrumentSet = createInstruments(tone, 'acoustic', 'casio');
+    console.log('play: instruments created, waiting for samples to load...');
+
+    await Tone.loaded();
+    console.log('play: samples loaded');
 
     startTimeRef.current = Date.now();
 
+    let noteCount = 0;
     for (const track of data.tracks) {
       for (const note of track.notes) {
         tone.Transport.schedule((time) => {
           const instrument = getInstrumentForTrack(track, instrumentSet);
           if (instrument && typeof instrument.triggerAttackRelease === 'function') {
+            console.log('NOTE:', note.name, 'at time:', time, 'channel:', track.channel);
             instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
           }
         }, note.time);
+        noteCount++;
       }
     }
 
+    console.log('play: scheduled', noteCount, 'notes, starting transport');
+
     tone.Transport.start();
+    console.log('play: Transport started, state:', tone.Transport.state);
 
     progressInterval.current = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
