@@ -31,7 +31,7 @@ export function HWSidebar({ tracks, currentIndex, onSelectTrack, onFileUpload }:
               <li
                 key={index}
                 onClick={() => onSelectTrack(index)}
-                className={`file-item text-[0.8rem] p-3 rounded mb-1 cursor-pointer transition-all truncate ${index === currentIndex
+                className={`file-item text-[0.8rem] p-3 rounded mb-1 cursor-pointer transition-all truncate whitespace-nowrap overflow-hidden ${index === currentIndex
                   ? 'bg-[var(--color-hw-orange)] text-white shadow-md'
                   : 'bg-white/30 hover:bg-white/50'
                   }`}
