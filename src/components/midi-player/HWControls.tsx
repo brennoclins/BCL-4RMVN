@@ -1,9 +1,16 @@
 import { Select } from '../ui';
-import type { DrumKitType, MainInstrumentType, BassType, GuitarType, BrassType } from '../../types';
+import type {
+  DrumKitType,
+  MainInstrumentType,
+  BassType,
+  GuitarType,
+  BrassType,
+  StringsType,
+  SynthType,
+  OrganType,
+} from '../../types';
 
 interface HWControlsProps {
-  soundMode: 'samples' | 'digital';
-  onSoundModeChange: (value: 'samples' | 'digital') => void;
   drumKit: DrumKitType;
   onDrumKitChange: (value: DrumKitType) => void;
   mainInstrument: MainInstrumentType;
@@ -14,6 +21,12 @@ interface HWControlsProps {
   onGuitarChange: (value: GuitarType) => void;
   brass: BrassType;
   onBrassChange: (value: BrassType) => void;
+  strings: StringsType;
+  onStringsChange: (value: StringsType) => void;
+  synth: SynthType;
+  onSynthChange: (value: SynthType) => void;
+  organ: OrganType;
+  onOrganChange: (value: OrganType) => void;
   showBass?: boolean;
   showGuitar?: boolean;
   showBrass?: boolean;
@@ -54,9 +67,22 @@ const brassOptions = [
   { value: 'sax', label: 'Sax' },
 ];
 
+const stringsOptions = [
+  { value: 'strings', label: 'Strings' },
+  { value: 'pizzicato', label: 'Pizzicato' },
+];
+
+const synthOptions = [
+  { value: 'lead', label: 'Lead' },
+  { value: 'pad', label: 'Pad' },
+];
+
+const organOptions = [
+  { value: 'church', label: 'Church' },
+  { value: 'electric', label: 'Electric' },
+];
+
 export function HWControls({
-  soundMode,
-  onSoundModeChange,
   drumKit,
   onDrumKitChange,
   mainInstrument,
@@ -67,34 +93,37 @@ export function HWControls({
   onGuitarChange,
   brass,
   onBrassChange,
+  strings,
+  onStringsChange,
+  synth,
+  onSynthChange,
+  organ,
+  onOrganChange,
   showBass = false,
   showGuitar = false,
   showBrass = false,
 }: HWControlsProps) {
   return (
-    <div className="flex flex-col gap-4 justify-around h-full">
+    <div className="flex flex-col gap-3 justify-around h-full overflow-y-auto">
       <SettingRow
-        label="Sound"
-        value={soundMode}
-        onChange={(v) => onSoundModeChange(v as 'samples' | 'digital')}
-        options={[
-          { value: 'samples', label: 'Samples' },
-          { value: 'digital', label: 'Digital' },
-        ]}
+        label="Main"
+        value={mainInstrument}
+        onChange={(v) => onMainInstrumentChange(v as MainInstrumentType)}
+        options={mainInstrumentOptions}
       />
 
       <SettingRow
-        label="Drum Kit"
+        label="Drums"
         value={drumKit}
         onChange={(v) => onDrumKitChange(v as DrumKitType)}
         options={drumKitOptions}
       />
 
       <SettingRow
-        label="Main"
-        value={mainInstrument}
-        onChange={(v) => onMainInstrumentChange(v as MainInstrumentType)}
-        options={mainInstrumentOptions}
+        label="Organ"
+        value={organ}
+        onChange={(v) => onOrganChange(v as OrganType)}
+        options={organOptions}
       />
 
       {showBass && (
@@ -123,6 +152,20 @@ export function HWControls({
           options={brassOptions}
         />
       )}
+
+      <SettingRow
+        label="Strings"
+        value={strings}
+        onChange={(v) => onStringsChange(v as StringsType)}
+        options={stringsOptions}
+      />
+
+      <SettingRow
+        label="Synth"
+        value={synth}
+        onChange={(v) => onSynthChange(v as SynthType)}
+        options={synthOptions}
+      />
     </div>
   );
 }
@@ -137,7 +180,7 @@ interface SettingRowProps {
 function SettingRow({ label, value, onChange, options }: SettingRowProps) {
   return (
     <div className="flex items-center justify-end gap-2">
-      <span className="text-[0.7rem] uppercase text-[var(--color-text-mid)]">{label}</span>
+      <span className="text-[0.65rem] uppercase text-[var(--color-text-mid)] w-12 text-right">{label}</span>
       <Select options={options} value={value} onChange={onChange} />
     </div>
   );

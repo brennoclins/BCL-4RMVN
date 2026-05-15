@@ -1,9 +1,20 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Midi } from '@tonejs/midi';
-import type { MidiData } from '../types';
-import { getDuration, detectInstruments } from '../services/midiParser';
+import * as Tone from 'tone';
+import type { MidiData, MidiTrack, TrackMuteState, InstrumentSelections } from '../types';
+import { getDuration, detectInstruments, getTrackName } from '../services/midiParser';
 import { formatTime } from '../utils/helpers';
-import { toneService, getInstrumentConfig } from '../services/toneService';
+import { toneService } from '../services/toneService';
+import {
+  drumKits,
+  mainInstruments,
+  bassInstruments,
+  guitarInstruments,
+  brassInstruments,
+  stringsInstruments,
+  synthInstruments,
+  organInstruments,
+} from '../services/instrumentConfigs';
 
 interface MidiPlayerState {
   midiData: MidiData | null;
@@ -19,6 +30,102 @@ interface MidiPlayerState {
   };
   status: 'idle' | 'loading' | 'ready' | 'playing' | 'paused' | 'error';
   error: string | null;
+}
+
+type ToneInstrument = Tone.Sampler | Tone.PolySynth | Tone.MembraneSynth;
+
+interface InstrumentMap {
+  [channel: number]: ToneInstrument | null;
+}
+
+let activeInstruments: ToneInstrument[] = [];
+
+function disposeInstruments() {
+  activeInstruments.forEach((inst) => {
+    try {
+      inst.dispose();
+    } catch {
+      // ignore
+    }
+  });
+  activeInstruments = [];
+}
+
+function createSampler(
+  config: { urls: Record<string, string>; baseUrl: string } | null,
+  fallbackType: 'triangle' | 'sawtooth' | 'square'
+): ToneInstrument {
+  if (config) {
+    const sampler = new Tone.Sampler({
+      urls: config.urls,
+      baseUrl: config.baseUrl,
+    }).toDestination();
+    activeInstruments.push(sampler);
+    return sampler;
+  }
+
+  const synth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: fallbackType },
+    envelope: {
+      attack: 0.005,
+      decay: 0.3,
+      sustain: 0.1,
+      release: 0.5,
+    },
+  }).toDestination();
+  activeInstruments.push(synth);
+  return synth;
+}
+
+function buildInstrumentMap(
+  tracks: MidiTrack[],
+  selections: InstrumentSelections
+): InstrumentMap {
+  const map: InstrumentMap = {};
+
+  for (const track of tracks) {
+    if (track.muted) {
+      map[track.channel] = null;
+      continue;
+    }
+
+    if (track.channel === 9) {
+      const config = drumKits[selections.drumKit] || drumKits.acoustic;
+      map[9] = new Tone.Sampler({
+        urls: config.urls,
+        baseUrl: config.baseUrl,
+      }).toDestination();
+      activeInstruments.push(map[9] as ToneInstrument);
+      continue;
+    }
+
+    const prog = track.program ?? 0;
+
+    if (prog >= 16 && prog <= 23) {
+      const config = organInstruments[selections.organ] || organInstruments.church;
+      map[track.channel] = createSampler(config, 'triangle');
+    } else if (prog >= 24 && prog <= 31) {
+      const config = guitarInstruments[selections.guitar] || guitarInstruments.nylon;
+      map[track.channel] = createSampler(config, 'sawtooth');
+    } else if (prog >= 32 && prog <= 39) {
+      const config = bassInstruments[selections.bass] || bassInstruments.finger;
+      map[track.channel] = createSampler(config, 'square');
+    } else if (prog >= 40 && prog <= 55) {
+      const config = stringsInstruments[selections.strings] || stringsInstruments.strings;
+      map[track.channel] = createSampler(config, 'sawtooth');
+    } else if (prog >= 56 && prog <= 63) {
+      const config = brassInstruments[selections.brass] || brassInstruments.trumpet;
+      map[track.channel] = createSampler(config, 'square');
+    } else if (prog >= 80 && prog <= 95) {
+      const config = synthInstruments[selections.synth] || synthInstruments.lead;
+      map[track.channel] = createSampler(config, 'square');
+    } else {
+      const config = mainInstruments[selections.mainInstrument] || mainInstruments.casio;
+      map[track.channel] = createSampler(config, 'triangle');
+    }
+  }
+
+  return map;
 }
 
 export function useMidiPlayer() {
@@ -38,67 +145,95 @@ export function useMidiPlayer() {
     error: null,
   });
 
-  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startTimeRef = useRef<number>(0);
+  const selectionsRef = useRef<InstrumentSelections>({
+    drumKit: 'acoustic',
+    mainInstrument: 'casio',
+    bass: 'finger',
+    guitar: 'nylon',
+    brass: 'trumpet',
+    strings: 'strings',
+    synth: 'lead',
+    organ: 'church',
+  });
+
+  const muteRef = useRef<TrackMuteState>({});
   const durationRef = useRef<number>(0);
-  const pauseRef = useRef<() => void>(() => {});
-  const instrumentSetRef = useRef<InstrumentSet | null>(null);
+  const animFrameRef = useRef<number>(0);
+  const isScheduledRef = useRef(false);
 
   useEffect(() => {
     return () => {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-        progressInterval.current = null;
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
       }
-
-      const tone = toneService.get();
-      if (tone) {
-        tone.Transport.stop();
-        tone.Transport.cancel();
-      }
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      disposeInstruments();
     };
   }, []);
 
-  const pause = useCallback(() => {
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
-
-    const tone = toneService.get();
-    if (tone) {
-      tone.Transport.stop();
-      tone.Transport.cancel();
-    }
+  const updateProgress = useCallback(() => {
+    const elapsed = Tone.Transport.seconds;
+    const dur = durationRef.current;
+    const progress = dur > 0 ? Math.min((elapsed / dur) * 100, 100) : 0;
 
     setState((prev) => ({
       ...prev,
-      status: 'paused',
-      isPlaying: false,
-      isPaused: true,
+      currentTime: elapsed,
+      progress,
     }));
-  }, []);
 
-  pauseRef.current = pause;
+    if (elapsed >= dur && dur > 0) {
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      isScheduledRef.current = false;
+      setState((prev) => ({
+        ...prev,
+        status: 'ready',
+        isPlaying: false,
+        isPaused: false,
+        currentTime: 0,
+        progress: 0,
+      }));
+      return;
+    }
+
+    animFrameRef.current = requestAnimationFrame(updateProgress);
+  }, []);
 
   const loadFile = useCallback(async (file: File) => {
     setState((prev) => ({ ...prev, status: 'loading', error: null }));
-    toneService.stopAll();
+
+    Tone.Transport.stop();
+    Tone.Transport.cancel();
+    isScheduledRef.current = false;
+    disposeInstruments();
 
     try {
       const arrayBuffer = await file.arrayBuffer();
       const midi = new Midi(arrayBuffer);
 
       const midiData: MidiData = {
-        tracks: midi.tracks.map((track) => ({
+        name: midi.name || file.name,
+        bpm: midi.header.tempos.length > 0 ? midi.header.tempos[0].bpm : 120,
+        timeSignature: midi.header.timeSignatures.length > 0
+          ? midi.header.timeSignatures[0].timeSignature
+          : [4, 4],
+        tracks: midi.tracks.map((track, index) => ({
           channel: track.channel,
           program: (track as { program?: number }).program,
+          name: getTrackName(
+            { channel: track.channel, program: (track as { program?: number }).program },
+            index
+          ),
           notes: track.notes.map((note) => ({
             name: note.name,
+            midi: note.midi,
             time: note.time,
             duration: note.duration,
             velocity: note.velocity,
           })),
+          muted: false,
         })),
       };
 
@@ -106,6 +241,8 @@ export function useMidiPlayer() {
       const detectedInstruments = detectInstruments(midiData);
 
       durationRef.current = duration;
+
+      Tone.Transport.bpm.value = midiData.bpm;
 
       setState((prev) => ({
         ...prev,
@@ -126,11 +263,61 @@ export function useMidiPlayer() {
     }
   }, []);
 
+  const scheduleNotes = useCallback(
+    (midiData: MidiData, startTime: number) => {
+      const selections = selectionsRef.current;
+      const instrumentMap = buildInstrumentMap(midiData.tracks, selections);
+
+      for (let i = 0; i < midiData.tracks.length; i++) {
+        const track = midiData.tracks[i];
+        const isMuted = muteRef.current[i] ?? false;
+
+        if (isMuted || track.notes.length === 0) continue;
+
+        const instrument = instrumentMap[track.channel];
+        if (!instrument) continue;
+
+        for (const note of track.notes) {
+          if (note.time + note.duration <= startTime) continue;
+
+          const scheduledTime = note.time - startTime;
+
+          Tone.Transport.schedule((time) => {
+            if (instrument instanceof Tone.Sampler) {
+              instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+            } else if (instrument instanceof Tone.PolySynth || instrument instanceof Tone.MembraneSynth) {
+              instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+            }
+          }, scheduledTime);
+        }
+      }
+    },
+    []
+  );
+
   const play = useCallback(async () => {
     if (!state.midiData || !state.midiData.tracks.length) return;
 
     await toneService.start();
-    toneService.stopAll();
+
+    if (state.isPaused) {
+      const pausedAt = state.currentTime;
+      Tone.Transport.position = pausedAt;
+      isScheduledRef.current = false;
+    } else {
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      Tone.Transport.position = 0;
+      isScheduledRef.current = false;
+    }
+
+    if (!isScheduledRef.current) {
+      const startPos = state.isPaused ? state.currentTime : 0;
+      scheduleNotes(state.midiData, startPos);
+      isScheduledRef.current = true;
+    }
+
+    Tone.Transport.start();
 
     setState((prev) => ({
       ...prev,
@@ -139,50 +326,36 @@ export function useMidiPlayer() {
       isPaused: false,
     }));
 
-    const tone = await toneService.init();
-    instrumentSetRef.current = createInstruments(tone, 'acoustic', 'casio');
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+    }
+    animFrameRef.current = requestAnimationFrame(updateProgress);
+  }, [state.midiData, state.isPaused, state.currentTime, scheduleNotes, updateProgress]);
 
-    tone.Transport.cancel();
-    tone.Transport.position = 0;
+  const pause = useCallback(() => {
+    Tone.Transport.pause();
 
-    startTimeRef.current = Date.now();
-
-    for (const track of state.midiData.tracks) {
-      for (const note of track.notes) {
-        tone.Transport.schedule((time) => {
-          const instrument = getInstrumentForTrack(track, instrumentSetRef.current!);
-          if (instrument && typeof instrument.triggerAttackRelease === 'function') {
-            instrument.triggerAttackRelease(note.name, note.duration, time, note.velocity);
-          }
-        }, note.time);
-      }
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
     }
 
-    tone.Transport.start();
-
-    progressInterval.current = setInterval(() => {
-      const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      const progress = Math.min((elapsed / durationRef.current) * 100, 100);
-
-      setState((prev) => ({
-        ...prev,
-        currentTime: elapsed,
-        progress,
-      }));
-
-      if (elapsed >= durationRef.current) {
-        pauseRef.current();
-      }
-    }, 50);
-  }, [state.midiData]);
+    setState((prev) => ({
+      ...prev,
+      status: 'paused',
+      isPlaying: false,
+      isPaused: true,
+    }));
+  }, []);
 
   const stop = useCallback(() => {
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
+    Tone.Transport.stop();
+    Tone.Transport.cancel();
+    isScheduledRef.current = false;
+    disposeInstruments();
 
-    toneService.stopAll();
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+    }
 
     setState((prev) => ({
       ...prev,
@@ -194,103 +367,34 @@ export function useMidiPlayer() {
     }));
   }, []);
 
+  const setTrackMute = useCallback((trackIndex: number, muted: boolean) => {
+    muteRef.current = { ...muteRef.current, [trackIndex]: muted };
+
+    setState((prev) => {
+      if (!prev.midiData) return prev;
+      const newTracks = prev.midiData.tracks.map((t, i) =>
+        i === trackIndex ? { ...t, muted } : t
+      );
+      return {
+        ...prev,
+        midiData: { ...prev.midiData, tracks: newTracks },
+      };
+    });
+  }, []);
+
+  const setInstrumentSelections = useCallback((selections: Partial<InstrumentSelections>) => {
+    selectionsRef.current = { ...selectionsRef.current, ...selections };
+  }, []);
+
   return {
     ...state,
     loadFile,
     play,
     pause,
     stop,
+    setTrackMute,
+    setInstrumentSelections,
     formattedTime: formatTime(state.currentTime),
     formattedDuration: formatTime(state.duration),
   };
-}
-
-type ToneInstrument = import('tone').PolySynth | import('tone').Sampler | import('tone').MembraneSynth;
-
-interface InstrumentSet {
-  drums: ToneInstrument | null;
-  main: ToneInstrument;
-  bass: ToneInstrument;
-  guitar: ToneInstrument;
-  brass: ToneInstrument;
-  strings: ToneInstrument;
-  synth: ToneInstrument;
-}
-
-function createInstruments(
-  tone: Awaited<ReturnType<typeof toneService.init>>,
-  drumKit: string,
-  mainInstrument: string
-): InstrumentSet {
-  const drumConfig = getInstrumentConfig('drums', drumKit);
-  const mainConfig = getInstrumentConfig('main', mainInstrument);
-
-  return {
-    drums: drumConfig
-      ? new tone.Sampler({
-          urls: drumConfig.urls,
-          baseUrl: drumConfig.baseUrl,
-        }).toDestination()
-      : null,
-    main: mainConfig
-      ? new tone.Sampler({
-          urls: mainConfig.urls,
-          baseUrl: mainConfig.baseUrl,
-        }).toDestination()
-      : new tone.PolySynth(tone.Synth, {
-          oscillator: { type: 'triangle' },
-          envelope: {
-            attack: 0.005,
-            decay: 0.3,
-            sustain: 0.1,
-            release: 0.5,
-          },
-        }).toDestination(),
-    bass: new tone.MembraneSynth({
-      pitchDecay: 0.05,
-      octaves: 6,
-      oscillator: { type: 'square' },
-      envelope: {
-        attack: 0.001,
-        decay: 0.3,
-        sustain: 0.01,
-        release: 0.3,
-      },
-    }).toDestination(),
-    guitar: new tone.PolySynth(tone.Synth, {
-      oscillator: { type: 'sawtooth' },
-      envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.3 },
-    }).toDestination(),
-    brass: new tone.PolySynth(tone.Synth, {
-      oscillator: { type: 'square' },
-      envelope: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2 },
-    }).toDestination(),
-    strings: new tone.PolySynth(tone.Synth, {
-      oscillator: { type: 'sawtooth' },
-      envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.3 },
-    }).toDestination(),
-    synth: new tone.PolySynth(tone.Synth, {
-      oscillator: { type: 'square' },
-      envelope: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2 },
-    }).toDestination(),
-  };
-}
-
-function getInstrumentForTrack(
-  track: { channel: number; program?: number },
-  instrumentSet: InstrumentSet
-): ToneInstrument {
-  if (track.channel === 9) return instrumentSet.drums ?? instrumentSet.main;
-
-  if (track.program !== undefined) {
-    const prog = track.program;
-    if (prog <= 7) return instrumentSet.main;
-    if (prog >= 24 && prog <= 31) return instrumentSet.guitar ?? instrumentSet.main;
-    if (prog >= 32 && prog <= 39) return instrumentSet.bass ?? instrumentSet.main;
-    if (prog >= 40 && prog <= 55) return instrumentSet.strings ?? instrumentSet.main;
-    if (prog >= 56 && prog <= 63) return instrumentSet.brass ?? instrumentSet.main;
-    if (prog >= 80) return instrumentSet.synth ?? instrumentSet.main;
-  }
-
-  return instrumentSet.main;
 }
