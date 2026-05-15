@@ -4,11 +4,10 @@ import {
   PlayerContainer,
   HWLogoSection,
   HWScreen,
-  HWControls,
   HWPads,
-  HWKeysButtons,
   HWTransport,
   HWVolumeSection,
+  InstrumentPads,
 } from '../components/midi-player';
 import type {
   DrumKitType,
@@ -143,8 +142,29 @@ export function MidiPlayerPage() {
           />
         </div>
 
-        <div className="col-start-4 row-start-1 row-span-2">
-          <HWControls
+        <div className="col-start-1 row-start-2 row-span-2">
+          <HWPads
+            tracks={trackList}
+            onFileSelect={loadFile}
+            onToggleMute={setTrackMute}
+          />
+        </div>
+
+        <div className="col-start-2 col-span-3 row-start-3">
+          <HWTransport
+            isPlaying={isPlaying}
+            onPlayPause={handlePlayPause}
+            onStop={stop}
+            disabled={status === 'idle' || status === 'loading'}
+          />
+        </div>
+
+        <div className="col-span-3 row-start-4">
+          <HWVolumeSection progress={progress} currentTime={formattedTime} />
+        </div>
+
+        <div className="col-span-3 row-start-5">
+          <InstrumentPads
             drumKit={drumKit}
             onDrumKitChange={setDrumKit}
             mainInstrument={mainInstrument}
@@ -165,31 +185,6 @@ export function MidiPlayerPage() {
             showGuitar={detectedInstruments.channels.guitar}
             showBrass={detectedInstruments.channels.brass}
           />
-        </div>
-
-        <div className="col-start-1 row-start-2 row-span-2">
-          <HWPads
-            tracks={trackList}
-            onFileSelect={loadFile}
-            onToggleMute={setTrackMute}
-          />
-        </div>
-
-        <div className="col-start-4 row-start-3">
-          <HWKeysButtons />
-        </div>
-
-        <div className="col-start-2 col-span-3 row-start-3">
-          <HWTransport
-            isPlaying={isPlaying}
-            onPlayPause={handlePlayPause}
-            onStop={stop}
-            disabled={status === 'idle' || status === 'loading'}
-          />
-        </div>
-
-        <div className="col-span-3 row-start-4">
-          <HWVolumeSection progress={progress} currentTime={formattedTime} />
         </div>
       </PlayerContainer>
     </div>
