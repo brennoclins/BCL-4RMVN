@@ -17,9 +17,6 @@ export function MidiPlayerPage() {
     status,
     fileName,
     isPlaying,
-    isLooping,
-    bpm,
-    volume,
     progress,
     formattedTime,
     formattedDuration,
@@ -28,10 +25,6 @@ export function MidiPlayerPage() {
     play,
     pause,
     stop,
-    setVolume,
-    setDigital,
-    toggleLoop,
-    seek,
   } = useMidiPlayer();
 
   const [soundMode, setSoundMode] = useState<'samples' | 'digital'>('samples');
@@ -40,10 +33,6 @@ export function MidiPlayerPage() {
   const [bass, setBass] = useState<BassType>('finger');
   const [guitar, setGuitar] = useState<GuitarType>('nylon');
   const [brass, setBrass] = useState<BrassType>('trumpet');
-
-  useEffect(() => {
-    setDigital(soundMode === 'digital');
-  }, [soundMode, setDigital]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -112,8 +101,6 @@ export function MidiPlayerPage() {
             status={getStatusText()}
             statusVariant={getStatusVariant()}
             duration={formattedDuration}
-            bpm={bpm}
-            isLooping={isLooping}
           />
         </div>
 
@@ -148,22 +135,14 @@ export function MidiPlayerPage() {
         <div className="col-start-2 col-span-3 row-start-3">
           <HWTransport
             isPlaying={isPlaying}
-            isLooping={isLooping}
             onPlayPause={handlePlayPause}
             onStop={stop}
-            onToggleLoop={toggleLoop}
             disabled={status === 'idle' || status === 'loading'}
           />
         </div>
 
         <div className="col-span-3 row-start-4">
-          <HWVolumeSection
-            progress={progress}
-            currentTime={formattedTime}
-            volume={volume}
-            onProgressClick={seek}
-            onVolumeChange={setVolume}
-          />
+          <HWVolumeSection progress={progress} currentTime={formattedTime} />
         </div>
       </PlayerContainer>
     </div>

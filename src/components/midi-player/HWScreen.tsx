@@ -3,8 +3,6 @@ interface HWScreenProps {
   status: string;
   statusVariant?: 'ready' | 'error' | 'default';
   duration: string;
-  bpm?: number;
-  isLooping?: boolean;
 }
 
 export function HWScreen({
@@ -12,8 +10,6 @@ export function HWScreen({
   status,
   statusVariant = 'default',
   duration,
-  bpm,
-  isLooping,
 }: HWScreenProps) {
   const statusColor = statusVariant === 'error' ? '#ff4444' : 'var(--color-accent-screen)';
 
@@ -37,11 +33,8 @@ export function HWScreen({
       />
 
       <div className="flex justify-between text-xs text-white">
-        <div className="flex gap-4">
-          <span>Length: {duration}</span>
-          {bpm !== undefined && <span>BPM: {bpm}</span>}
-          {isLooping && <span className="text-[var(--color-accent-screen)]">LOOP</span>}
-        </div>
+        <span>Length</span>
+        <span>{duration}</span>
       </div>
     </div>
   );
