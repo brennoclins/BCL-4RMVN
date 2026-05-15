@@ -292,9 +292,9 @@ export function AudioPlayerPage() {
   }, [togglePlay, nextTrack, prevTrack]);
 
   return (
-    <div className="flex items-center justify-center p-8">
+    <div className="flex items-center justify-center p-4 md:p-8">
       <AudioPlayerContainer>
-        <header className="flex justify-between items-start border-b-2 border-black/10 pb-6">
+        <header className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b-2 border-black/10 pb-6">
           <div>
             <h2 className="text-[2.4rem] font-bold tracking-tighter leading-none uppercase">
               501BCLST<span className="text-[var(--color-hw-orange)]">.</span>
@@ -306,7 +306,7 @@ export function AudioPlayerPage() {
           <div className="w-[10px] h-[10px] bg-[var(--color-accent-screen)] rounded-full shadow-[0_0_8px_#00ff44] mt-2" />
         </header>
 
-        <div className="flex gap-6 mt-6">
+        <div className="flex flex-col md:flex-row gap-6 mt-6">
           <HWSidebar
             tracks={tracks}
             currentIndex={currentIndex}
@@ -324,7 +324,7 @@ export function AudioPlayerPage() {
               isPlaying={isPlaying}
             />
 
-            <div className="flex items-center justify-between gap-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
               <AudioTransport
                 isPlaying={isPlaying}
                 isLooping={isLooping}

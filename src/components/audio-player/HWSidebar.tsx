@@ -15,7 +15,7 @@ export function HWSidebar({ tracks, currentIndex, onSelectTrack, onFileUpload }:
   };
 
   return (
-    <aside className="w-[280px] min-w-[280px] bg-[#d8d8d8] rounded-lg p-5 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1)] flex flex-col gap-4">
+    <aside className="w-full md:w-[280px] md:min-w-[280px] bg-[#d8d8d8] rounded-lg p-5 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.1)] flex flex-col gap-4">
       <span className="text-[0.7rem] font-bold uppercase text-[var(--color-text-mid)]">
         Playlist Data
       </span>

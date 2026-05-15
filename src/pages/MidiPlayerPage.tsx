@@ -89,7 +89,7 @@ export function MidiPlayerPage() {
   };
 
   return (
-    <div className="flex items-center justify-center p-8">
+    <div className="flex items-center justify-center p-4 md:p-8">
       <PlayerContainer>
         <div className="col-start-1 row-start-1">
           <HWLogoSection />
