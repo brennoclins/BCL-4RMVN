@@ -5,3 +5,4 @@ export { PrivacyPolicyPage } from './PrivacyPolicyPage';
 export { TermsOfUsePage } from './TermsOfUsePage';
 export { CookiesPage } from './CookiesPage';
 export { AboutPage } from './AboutPage';
+export { ContactPage } from './ContactPage';

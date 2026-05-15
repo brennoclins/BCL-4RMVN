@@ -65,7 +65,7 @@ function Footer() {
               <li><Link to="/about" className="hover:text-white transition-colors">Sobre Nós</Link></li>
               <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Carreiras</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contato</a></li>
+              <li><Link to="/contact" className="hover:text-white transition-colors">Contato</Link></li>
             </ul>
           </div>
 
