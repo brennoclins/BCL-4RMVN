@@ -92,12 +92,21 @@ function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500">
-            © 2026 BCL-4RMVN. Todos os direitos reservados.
+            © {new Date().getFullYear()}{' '}
+            <a
+              href="https://github.com/brennoclins"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              BCL-4RMVN<span className="text-[var(--color-hw-orange)]">.</span>
+            </a>
+            Todos os direitos reservados.
           </p>
           <div className="flex gap-6 text-sm text-gray-500">
-            <a href="#" className="hover:text-white transition-colors">Política de Privacidade</a>
-            <a href="#" className="hover:text-white transition-colors">Termos de Uso</a>
-            <a href="#" className="hover:text-white transition-colors">Cookies</a>
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">Política de Privacidade</Link>
+            <Link to="/terms-of-use" className="hover:text-white transition-colors">Termos de Uso</Link>
+            <Link to="/cookies" className="hover:text-white transition-colors">Cookies</Link>
           </div>
         </div>
       </div>
